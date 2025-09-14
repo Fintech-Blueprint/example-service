@@ -1,0 +1,1 @@
+# Security Policy\n\nReport vulnerabilities to security@fintech-blueprint.example and do NOT post secrets in code. Use OIDC-based flows for CI authentication.
