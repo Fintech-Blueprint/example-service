@@ -1,1 +1,1 @@
-# example-service
+# example-service\n\nExample microservice skeleton using the golden template.\n
