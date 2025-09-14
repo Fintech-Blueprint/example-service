@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+.venv/
+venv/
+.build/
+build/
+dist/
+*.egg-info
+
+# VSCode
+.vscode/
+
+# Env files
+.env
