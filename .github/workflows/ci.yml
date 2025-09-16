@@ -48,11 +48,13 @@ jobs:
     needs: docker-build
     steps:
       - uses: actions/checkout@v3
+
       - name: Generate SBOM
         run: |
           pip install cyclonedx-bom
           cyclonedx-py -o sbom.xml
-            - name: Sign image (cosign)
+
+      - name: Sign image (cosign)
         run: |
           echo "placeholder for cosign signing"
           # Placeholder: after docker build, update staging-env manifest (to be implemented)
