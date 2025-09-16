@@ -51,11 +51,15 @@ jobs:
     needs: docker-build
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
       - name: Generate SBOM
         run: |
           pip install cyclonedx-bom
-          cyclonedx-py -o sbom.xml
+          # Generate SBOM from requirements.txt (fixed command syntax)
+          cyclonedx-py requirements -r requirements.txt -o sbom.xml
 
       - name: Sign image (cosign)
         run: |
