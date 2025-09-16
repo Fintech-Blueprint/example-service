@@ -58,8 +58,8 @@ jobs:
       - name: Generate SBOM
         run: |
           pip install cyclonedx-bom
-          # Generate SBOM from requirements.txt (fixed command syntax)
-          cyclonedx-py requirements -r requirements.txt -o sbom.xml
+          # Generate SBOM using correct command syntax (no -r flag)
+          cyclonedx-py requirements requirements.txt -o sbom.xml
 
       - name: Sign image (cosign)
         run: |
