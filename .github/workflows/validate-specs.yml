@@ -83,22 +83,25 @@ jobs:
               }
               
               # Save report
-              os.makedirs('reports', exist_ok=True)
-              with open('reports/spec-coverage.json', 'w') as f:
-                  json.dump(report, f, indent=2)
+        os.makedirs('reports', exist_ok=True)
+        with open('reports/spec-coverage.json', 'w') as f:
+          json.dump(report, f, indent=2)
                   
-              # Fail if any issues found
-              if issues:
-                  print('❌ Specification validation failed!')
-                  print(f'Found {len(issues)} issues:')
-                  for issue in issues:
-                      print(f"- {issue['file']}:{issue['line']} - {issue['issue']}")
-                  exit(1)
-              else:
-                  print('✅ All specifications are valid!')
-                  print(f'Coverage: {report["spec_coverage"]}%')
-                  print(f'Total scenarios: {total_scenarios}')
-                  print(f'Implemented: {implemented}')
+        # Fail if any issues found
+        if issues:
+          print('❌ Specification validation failed!')
+          print(f'Found {len(issues)} issues:')
+          for issue in issues:
+            print(f"- {issue['file']}:{issue['line']} - {issue['issue']}")
+          # write a failure marker
+          with open('reports/spec-validation-failed','w') as m:
+            m.write('failed')
+          exit(1)
+        else:
+          print('✅ All specifications are valid!')
+          print(f'Coverage: {report["spec_coverage"]}%')
+          print(f'Total scenarios: {total_scenarios}')
+          print(f'Implemented: {implemented}')
 
           if __name__ == '__main__':
               analyze_spec_coverage()
@@ -110,3 +113,10 @@ jobs:
         with:
           name: spec-coverage-report
           path: reports/spec-coverage.json
+
+    - name: Upload validation marker
+    if: always()
+    uses: actions/upload-artifact@v3
+    with:
+      name: spec-validation-marker
+      path: reports/spec-validation-failed
