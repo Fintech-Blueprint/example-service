@@ -274,6 +274,18 @@ jobs:
             exit 1
           fi
 
+      - name: Show audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "==== audit-response.json ===="
+            cat ./audit-response.json
+            jq -r '"Validator Exit Code: \(.validator_exit_code)\nAuditor Exit Code: \(.auditor_exit_code)"' ./audit-response.json 2>/dev/null || true
+            echo "============================"
+          else
+            echo "No audit-response.json found"
+          fi
+
       - name: Upload audit-response.json
         uses: actions/upload-artifact@v4
         with:
