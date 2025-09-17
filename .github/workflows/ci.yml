@@ -279,6 +279,17 @@ jobs:
         with:
           name: audit-response
           path: ./audit-response.json
+      - name: Always upload logs/artifacts (final step)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: enforce-compliance-artifacts
+          path: |
+            audit-response.json
+            pytest-results.xml
+            flake8.log
+            docker.log
+            sbom.json
 name: CI
 
 on:
