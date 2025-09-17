@@ -1,0 +1,5 @@
+from {{ module }} import {{ class_name }}
+
+def test_{{ class_name|lower }}_service():
+    service = {{ class_name }}()
+    assert service.check() == "pong"

@@ -1,0 +1,58 @@
+name: Auto-Generate Code from Specs
+
+on:
+  workflow_run:
+    workflows: ["Validate Specifications"]
+    types:
+      - completed
+
+jobs:
+  generate-code:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+                with:
+                    python-version: '3.11'
+
+            - name: Install generator dependencies
+                run: |
+                    pip install jinja2
+
+            - name: Download spec coverage report
+                uses: actions/download-artifact@v3
+                with:
+                    name: spec-coverage-report
+                    path: reports
+
+            - name: Run hardened generator
+                run: |
+                    python scripts/generate_from_spec.py
+
+            - name: Run resource estimator and upload
+                run: |
+                    python scripts/resource_estimator.py
+        
+            - name: Upload reports
+                uses: actions/upload-artifact@v3
+                with:
+                    name: generation-reports
+                    path: reports/
+
+            - name: Commit generated code and open PR
+                uses: peter-evans/create-pull-request@v5
+                with:
+                    title: '🤖 Auto-generated code from specifications'
+                    body: |
+                        This PR contains auto-generated code from BDD specifications:
+                        - Core domain services
+                        - HTTP adapters
+                        - Unit tests
+                        - Integration tests
+                        - Living documentation
+            
+                        Please review the generated code and documentation.
+                    branch: auto/spec-implementation
+                    base: main
+                    delete-branch: true

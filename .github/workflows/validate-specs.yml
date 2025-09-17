@@ -1,0 +1,112 @@
+name: Validate Specifications
+
+on:
+  pull_request:
+    paths:
+      - 'specs/**'
+      - '**/*.feature'
+      - 'requirements/**'
+
+jobs:
+  validate-specs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install behave gherkin-lint pyyaml jsonschema
+
+      - name: Validate BDD syntax
+        run: |
+          for file in $(find . -name "*.feature"); do
+            echo "Validating $file..."
+            behave --dry-run "$file"
+          done
+
+      - name: Check spec coverage
+        run: |
+          python - <<'EOF'
+          import os
+          import json
+          import yaml
+          from pathlib import Path
+
+          def analyze_spec_coverage():
+              issues = []
+              total_scenarios = 0
+              implemented = 0
+              
+              # Scan .feature files
+              for feature_file in Path('.').rglob('*.feature'):
+                  with open(feature_file) as f:
+                      content = f.read()
+                      scenarios = content.count('Scenario:')
+                      total_scenarios += scenarios
+                      
+                      # Check for missing Given/When/Then
+                      lines = content.splitlines()
+                      for i, line in enumerate(lines, 1):
+                          if line.strip().startswith('Scenario:'):
+                              has_given = False
+                              has_when = False
+                              has_then = False
+                              
+                              # Look at next 10 lines for steps
+                              for step in lines[i:i+10]:
+                                  if step.strip().startswith('Given '):
+                                      has_given = True
+                                  elif step.strip().startswith('When '):
+                                      has_when = True
+                                  elif step.strip().startswith('Then '):
+                                      has_then = True
+                                      
+                              if not (has_given and has_when and has_then):
+                                  issues.append({
+                                      'file': str(feature_file),
+                                      'line': i,
+                                      'issue': 'Incomplete scenario steps'
+                                  })
+                              else:
+                                  implemented += 1
+              
+              # Generate report
+              report = {
+                  'spec_coverage': round((implemented / total_scenarios * 100) if total_scenarios > 0 else 0, 2),
+                  'total_scenarios': total_scenarios,
+                  'implemented_scenarios': implemented,
+                  'errors': issues
+              }
+              
+              # Save report
+              os.makedirs('reports', exist_ok=True)
+              with open('reports/spec-coverage.json', 'w') as f:
+                  json.dump(report, f, indent=2)
+                  
+              # Fail if any issues found
+              if issues:
+                  print('❌ Specification validation failed!')
+                  print(f'Found {len(issues)} issues:')
+                  for issue in issues:
+                      print(f"- {issue['file']}:{issue['line']} - {issue['issue']}")
+                  exit(1)
+              else:
+                  print('✅ All specifications are valid!')
+                  print(f'Coverage: {report["spec_coverage"]}%')
+                  print(f'Total scenarios: {total_scenarios}')
+                  print(f'Implemented: {implemented}')
+
+          if __name__ == '__main__':
+              analyze_spec_coverage()
+          EOF
+
+      - name: Upload spec coverage report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: spec-coverage-report
+          path: reports/spec-coverage.json

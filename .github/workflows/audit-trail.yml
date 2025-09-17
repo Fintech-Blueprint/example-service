@@ -1,0 +1,74 @@
+name: Audit Trail
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline", "Auto-Generate Code from Specs", "Validate Specifications"]
+    types:
+      - completed
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate audit report
+        run: |
+          python - <<'EOF'
+          import json
+          import os
+          from datetime import datetime
+          
+          def generate_audit_report():
+              # Get workflow event data
+              with open(os.environ['GITHUB_EVENT_PATH']) as f:
+                  event = json.load(f)
+                  
+              workflow_run = event['workflow_run']
+              
+              # Build report
+              report = {
+                  'timestamp': datetime.utcnow().isoformat(),
+                  'workflow': {
+                      'name': workflow_run['name'],
+                      'id': workflow_run['id'],
+                      'status': workflow_run['conclusion'],
+                      'url': workflow_run['html_url']
+                  },
+                  'commit': {
+                      'sha': workflow_run['head_sha'],
+                      'branch': workflow_run['head_branch']
+                  },
+                  'metrics': {
+                      'duration': workflow_run['updated_at'] - workflow_run['created_at'],
+                      'jobs_total': workflow_run['jobs_total'],
+                      'jobs_success': workflow_run['jobs_success']
+                  }
+              }
+              
+              # Save report
+              date = datetime.utcnow().strftime('%Y-%m-%d')
+              report_dir = f'audit-reports/{date}'
+              os.makedirs(report_dir, exist_ok=True)
+              
+              report_file = f'{report_dir}/{workflow_run["id"]}.json'
+              with open(report_file, 'w') as f:
+                  json.dump(report, f, indent=2)
+                  
+              # Generate summary
+              print('📊 Audit Report Generated')
+              print(f'Workflow: {report["workflow"]["name"]}')
+              print(f'Status: {report["workflow"]["status"]}')
+              print(f'Commit: {report["commit"]["sha"]}')
+              print(f'Branch: {report["commit"]["branch"]}')
+              print(f'Report saved to: {report_file}')
+              
+          if __name__ == '__main__':
+              generate_audit_report()
+          EOF
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: audit-report
+          path: audit-reports/
