@@ -137,7 +137,7 @@ jobs:
     name: SAST (CodeQL)
     runs-on: ubuntu-latest
     needs: [sbom-sign]
-    continue-on-error: ${{ env.MODE == 'sandbox' }}
+    continue-on-error: ${{ vars.MODE == 'sandbox' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -189,7 +189,7 @@ jobs:
     needs: [lint, test, docker-build, sbom-sign, sast]
     env:
       MODE: ${{ ((github.event_name == 'pull_request' && startsWith(github.head_ref, 'auto/spec-implementation')) || startsWith(github.ref, 'refs/heads/auto/spec-implementation')) && 'compliance' || vars.MODE || 'sandbox' }}
-    if: ${{ env.MODE == 'compliance' }}
+    if: ${{ vars.MODE == 'compliance' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
