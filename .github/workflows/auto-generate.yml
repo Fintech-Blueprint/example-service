@@ -11,48 +11,37 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-            - uses: actions/setup-python@v4
-                with:
-                    python-version: '3.11'
+      - name: Checkout
+        uses: actions/checkout@v3
 
-            - name: Install generator dependencies
-                run: |
-                    pip install jinja2
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-            - name: Download spec coverage report
-                uses: actions/download-artifact@v3
-                with:
-                    name: spec-coverage-report
-                    path: reports
+      - name: Install generator deps
+        run: |
+          pip install jinja2
 
-            - name: Run hardened generator
-                run: |
-                    python scripts/generate_from_spec.py
+      - name: Download spec coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: spec-coverage-report
+          path: reports
 
-            - name: Run resource estimator and upload
-                run: |
-                    python scripts/resource_estimator.py
-        
-            - name: Upload reports
-                uses: actions/upload-artifact@v3
-                with:
-                    name: generation-reports
-                    path: reports/
+      - name: Run generator
+        run: python scripts/generate_from_spec.py
 
-            - name: Commit generated code and open PR
-                uses: peter-evans/create-pull-request@v5
-                with:
-                    title: '🤖 Auto-generated code from specifications'
-                    body: |
-                        This PR contains auto-generated code from BDD specifications:
-                        - Core domain services
-                        - HTTP adapters
-                        - Unit tests
-                        - Integration tests
-                        - Living documentation
-            
-                        Please review the generated code and documentation.
-                    branch: auto/spec-implementation
-                    base: main
-                    delete-branch: true
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: generation-reports
+          path: reports/
+
+      - name: Create PR with generated code
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: "Auto-generated code from specifications"
+          branch: auto/spec-implementation
+          base: main
+          delete-branch: true

@@ -536,4 +536,5 @@ jobs:
           pip install cyclonedx-bom
           cyclonedx-py -o sbom.xml
       - name: Sign image (cosign)
-        run: echo "placeholder for cosign signing"\n\n# Placeholder: after docker build, update staging-env manifest (to be implemented)
+        run: echo "placeholder for cosign signing"
+      # Placeholder: after docker build, update staging-env manifest (to be implemented)
