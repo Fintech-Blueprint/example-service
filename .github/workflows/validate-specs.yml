@@ -98,6 +98,20 @@ jobs:
         with:
           name: spec-coverage-report
           path: reports/spec-coverage.json
+      - name: Print audit-response.json
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+        if: always()
+      - name: Print working directory & file listing
+        run: |
+          pwd
+          ls -la
+        if: always()
 
       - name: Print spec coverage report
         if: always()

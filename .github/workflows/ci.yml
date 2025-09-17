@@ -45,6 +45,20 @@ jobs:
         with:
           name: flake8.log
           path: flake8.log
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+           ls -la
 
   test:
     name: Test (pytest)
@@ -81,6 +95,20 @@ jobs:
           path: |
             pytest-results.xml
             pytest.log
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
 
   docker-build:
     name: Docker Build
@@ -110,6 +138,20 @@ jobs:
           path: |
             docker.log
             example-service-${{ github.sha }}.tar
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
 
   sbom-sign:
     name: Generate SBOM & Sign
@@ -132,6 +174,20 @@ jobs:
         with:
           name: sbom
           path: sbom.xml
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
 
   sast:
     name: SAST (CodeQL)
@@ -152,6 +208,20 @@ jobs:
 
       - name: Analyze
         uses: github/codeql-action/analyze@v2
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
 
   audit:
     name: Trigger Audit Trail
@@ -182,6 +252,20 @@ jobs:
         with:
           name: audit-response
           path: audit_response.json
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
 
   enforce-compliance:
     name: Enforce Compliance
@@ -243,3 +327,17 @@ jobs:
             flake8.log
             docker.log
             sbom.xml
+      - name: Print audit-response.json
+        if: always()
+        run: |
+          if [ -f ./audit-response.json ]; then
+            echo "===== audit-response.json ====="
+            cat ./audit-response.json
+          else
+            echo "audit-response.json missing"
+          fi
+      - name: Print working directory & file listing
+        if: always()
+        run: |
+          pwd
+          ls -la
