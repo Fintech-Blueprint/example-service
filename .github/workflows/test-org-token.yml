@@ -5,19 +5,19 @@ on:
 
 jobs:
   test-token:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check ORG_GH_TOKEN presence
-        run: |
-          echo "ORG_GH_TOKEN is set? ->"
-          if [ -z "$ORG_GH_TOKEN" ]; then
-            echo "❌ ORG_GH_TOKEN is empty"
-            exit 1
-          else
-            echo "✅ ORG_GH_TOKEN is present"
-          fi
+      - name: Authenticate to Vault and fetch ORG_GH_TOKEN
+        id: vault-login
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: github
+          role: github-actions-role
+          secrets: |
+            secret/data/ci/org_gh_token ORG_GH_TOKEN
 
       - name: Try safe repo dispatch
+        env:
+          ORG_GH_TOKEN: ${{ env.ORG_GH_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /tmp/dispatch_response.json -w "%{http_code}" \
             -X POST \
@@ -29,5 +29,7 @@ jobs:
           if [ "$HTTP_STATUS" != "204" ]; then
             echo "Dispatch failed; cat /tmp/dispatch_response.json:"
             cat /tmp/dispatch_response.json || true
+            exit 1
+          fi
             exit 1
           fi
