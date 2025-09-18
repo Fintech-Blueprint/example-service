@@ -3,6 +3,7 @@ from src.application.main import app
 
 client = TestClient(app)
 
+
 def test_ping():
     r = client.get('/v1/ping')
     assert r.status_code == 200
