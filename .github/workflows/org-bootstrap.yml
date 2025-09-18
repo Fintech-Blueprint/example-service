@@ -11,14 +11,24 @@ jobs:
       gh-token-ok: ${{ steps.check-gh-token.outcome }}
       tf-token-ok: ${{ steps.check-tf-token.outcome }}
     steps:
+      - name: Authenticate to Vault (OIDC) and fetch org token
+        id: vault-login
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: github
+          role: github-actions-role
+          secrets: |
+            secret/data/ci/org_gh_token ORG_GH_TOKEN
+
       - name: Check ORG_GH_TOKEN presence
         id: check-gh-token
         run: |
-          if [ -z "${{ secrets.ORG_GH_TOKEN }}" ]; then
-            echo "❌ ORG_GH_TOKEN not available"
+          if [ -z "$ORG_GH_TOKEN" ]; then
+            echo "❌ ORG_GH_TOKEN not available (vault retrieval failed)"
             exit 1
           else
-            echo "✅ ORG_GH_TOKEN is injected"
+            echo "✅ ORG_GH_TOKEN is injected (from Vault)"
           fi
 
       - name: Check TF_API_TOKEN presence
@@ -32,8 +42,10 @@ jobs:
           fi
 
       - name: ORG_GH_TOKEN – Test API access
+        env:
+          ORG_GH_TOKEN: ${{ env.ORG_GH_TOKEN }}
         run: |
-          curl -s -H "Authorization: token ${{ secrets.ORG_GH_TOKEN }}" \
+          curl -s -H "Authorization: token $ORG_GH_TOKEN" \
             https://api.github.com/user | tee gh_user.json
           echo "--- Parsed user ---"
           cat gh_user.json | jq -r '.login,.id,.type'

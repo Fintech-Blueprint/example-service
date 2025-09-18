@@ -49,9 +49,19 @@ jobs:
       - name: Print audit-response.json
         if: always()
         run: |
+                  - name: Vault Login for audit
+                    id: vault-login-audit
+                    uses: hashicorp/vault-action@v2
+                    with:
+                      url: ${{ secrets.VAULT_ADDR }}
+                      method: github
+                      role: github-actions-role
+                      # map the org token from Vault into ORG_GH_TOKEN env var
+                      secrets: |
+                        secret/data/ci/org_gh_token ORG_GH_TOKEN
           if [ -f ./audit-response.json ]; then
             echo "===== audit-response.json ====="
-            cat ./audit-response.json
+                      GITHUB_TOKEN: ${{ env.ORG_GH_TOKEN }}
           else
             echo "audit-response.json missing"
           fi
@@ -257,9 +267,19 @@ jobs:
             cp -r generated-artifacts reports || true
           fi
 
+      - name: Vault Login for audit
+        id: vault-login-audit
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: github
+          role: github-actions-role
+          secrets: |
+            secret/data/ci/org_gh_token ORG_GH_TOKEN
+
       - name: Trigger audit-trail workflow via repository dispatch
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ env.ORG_GH_TOKEN }}
         run: |
           set -e
           curl -s -X POST \
