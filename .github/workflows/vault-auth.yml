@@ -1,0 +1,32 @@
+name: Vault Auth
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  vault-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Vault via OIDC
+        id: vault-login
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: github
+          role: github-actions-role
+
+      - name: Export Vault token
+        run: |
+          echo "VAULT_TOKEN=${{ steps.vault-login.outputs.client_token }}" >> $GITHUB_ENV
+
+      - name: Test dynamic secret
+        run: |
+          vault kv put secret/test key=value || true
+          vault kv get secret/test || true

@@ -1,0 +1,6 @@
+{
+  "generated": [
+    "features/ping.feature",
+    "generated/spec-coverage.json"
+  ]
+}

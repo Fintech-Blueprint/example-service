@@ -1,0 +1,13 @@
+# {{ feature }}
+
+This feature was generated from BDD specs.
+
+Feature: {{ feature }}
+
+Mapping:
+- Core: `src/core/{{ feature|lower|replace(' ', '_') }}/service.py`
+- HTTP: `src/adapters/http/{{ feature|lower|replace(' ', '_') }}_controller.py`
+
+Tests:
+- Unit: `tests/unit/test_{{ feature|lower|replace(' ', '_') }}_service.py`
+- Integration: `tests/integration/test_{{ feature|lower|replace(' ', '_') }}_endpoint.py`

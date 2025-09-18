@@ -1,0 +1,9 @@
+from fastapi import APIRouter
+from src.core.{{ endpoint.strip('/') }}.service import {{ class_name }}
+
+router = APIRouter()
+
+@router.get("{{ endpoint }}")
+def {{ endpoint.strip('/') }}():
+    service = {{ class_name }}()
+    return {"message": service.check()}
