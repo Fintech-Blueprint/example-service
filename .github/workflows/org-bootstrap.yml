@@ -1,0 +1,77 @@
+name: Org Bootstrap – Secrets & Vault
+
+on:
+  workflow_dispatch:
+
+jobs:
+  secrets-validation:
+    name: Validate Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      gh-token-ok: ${{ steps.check-gh-token.outcome }}
+      tf-token-ok: ${{ steps.check-tf-token.outcome }}
+    steps:
+      - name: Check ORG_GH_TOKEN presence
+        id: check-gh-token
+        run: |
+          if [ -z "${{ secrets.ORG_GH_TOKEN }}" ]; then
+            echo "❌ ORG_GH_TOKEN not available"
+            exit 1
+          else
+            echo "✅ ORG_GH_TOKEN is injected"
+          fi
+
+      - name: Check TF_API_TOKEN presence
+        id: check-tf-token
+        run: |
+          if [ -z "${{ secrets.TF_API_TOKEN }}" ]; then
+            echo "❌ TF_API_TOKEN not available"
+            exit 1
+          else
+            echo "✅ TF_API_TOKEN is injected"
+          fi
+
+      - name: ORG_GH_TOKEN – Test API access
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.ORG_GH_TOKEN }}" \
+            https://api.github.com/user | tee gh_user.json
+          echo "--- Parsed user ---"
+          cat gh_user.json | jq -r '.login,.id,.type'
+
+      - name: TF_API_TOKEN – Test Terraform Cloud
+        run: |
+          curl -s -H "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+            https://app.terraform.io/api/v2/organizations/Fintech-BluePrint/workspaces \
+            | tee tfc_workspaces.json
+          echo "--- First workspace ---"
+          cat tfc_workspaces.json | jq -r '.data[0].attributes.name'
+
+  vault-bootstrap:
+    name: Bootstrap Vault via Terraform
+    runs-on: ubuntu-latest
+    needs: secrets-validation
+    if: success()
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.13.3"
+
+      - name: Configure Terraform Cloud credentials
+        run: |
+          mkdir -p ~/.terraform.d
+          echo "credentials \"app.terraform.io\" { token = \"${{ secrets.TF_API_TOKEN }}\" }" > ~/.terraform.d/credentials.tfrc.json
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: infra/vault/
+
+      - name: Terraform Apply (Vault provisioning)
+        run: terraform apply -auto-approve
+        working-directory: infra/vault/
+
+      - name: Output Vault address
+        run: terraform output -json | tee vault_output.json
