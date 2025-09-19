@@ -11,10 +11,20 @@ jobs:
       gh-token-ok: ${{ steps.check-gh-token.outcome }}
       tf-token-ok: ${{ steps.check-tf-token.outcome }}
     steps:
+      - name: Authenticate to Vault via OIDC
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: oidc
+          role: github-actions-role
+          secrets: |
+            secret/data/ci/org_gh_token ORG_GH_TOKEN
+            secret/data/ci/tf_api_token TF_API_TOKEN
+
       - name: Check ORG_GH_TOKEN presence
         id: check-gh-token
         run: |
-          if [ -z "${{ secrets.ORG_GH_TOKEN }}" ]; then
+          if [ -z "${ORG_GH_TOKEN}" ]; then
             echo "❌ ORG_GH_TOKEN not available"
             exit 1
           else
@@ -40,7 +50,7 @@ jobs:
 
       - name: TF_API_TOKEN – Test Terraform Cloud
         run: |
-          curl -s -H "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
+          curl -s -H "Authorization: Bearer $TF_API_TOKEN" \
             https://app.terraform.io/api/v2/organizations/Fintech-BluePrint/workspaces \
             | tee tfc_workspaces.json
           echo "--- First workspace ---"
@@ -63,7 +73,7 @@ jobs:
       - name: Configure Terraform Cloud credentials
         run: |
           mkdir -p ~/.terraform.d
-          echo "credentials \"app.terraform.io\" { token = \"${{ secrets.TF_API_TOKEN }}\" }" > ~/.terraform.d/credentials.tfrc.json
+          echo "credentials \"app.terraform.io\" { token = \"$TF_API_TOKEN\" }" > ~/.terraform.d/credentials.tfrc.json
 
       - name: Terraform Init
         run: terraform init

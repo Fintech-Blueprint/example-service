@@ -259,7 +259,7 @@ jobs:
 
       - name: Trigger audit-trail workflow via repository dispatch
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_GH_TOKEN }}
+          GITHUB_TOKEN: $ORG_GH_TOKEN
         run: |
           set -e
           curl -s -X POST \
