@@ -31,8 +31,10 @@ jobs:
           ACTIONS_STEP_DEBUG: true
         with:
           url: ${{ secrets.VAULT_ADDR }}
-          method: oidc
+          method: jwt
           role: github-actions
+          path: jwt
+          jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
