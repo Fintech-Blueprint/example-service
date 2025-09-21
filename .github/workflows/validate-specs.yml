@@ -11,7 +11,7 @@ jobs:
   validate-specs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -94,53 +94,7 @@ jobs:
 
       - name: Upload spec coverage report
         if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: spec-coverage-report
-          path: reports/spec-coverage.json
-      - name: Print audit-response.json
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-        if: always()
-      - name: Print working directory & file listing
-        run: |
-          pwd
-          ls -la
-        if: always()
-
-      - name: Print spec coverage report
-        if: always()
-        run: |
-          if [ -f reports/spec-coverage.json ]; then
-            echo "===== spec-coverage.json ====="
-            cat reports/spec-coverage.json
-          else
-            echo "spec-coverage.json missing"
-          fi
-
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          echo "===== Current directory ====="
-          pwd
-          echo "===== Files ====="
-          ls -la
-
-      - name: Upload validation marker
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: spec-validation-marker
-          path: reports/spec-validation-failed
-
-      - name: Upload spec coverage report
-        if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: spec-coverage-report
           path: reports/spec-coverage.json
@@ -155,17 +109,9 @@ jobs:
             echo "spec-coverage.json missing"
           fi
 
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          echo "===== Current directory ====="
-          pwd
-          echo "===== Files ====="
-          ls -la
-
       - name: Upload validation marker
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: spec-validation-marker
           path: reports/spec-validation-failed
