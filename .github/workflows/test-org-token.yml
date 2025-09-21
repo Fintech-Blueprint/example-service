@@ -21,6 +21,8 @@ jobs:
         id: debug
         run: |
           curl -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq .
+          echo "Token contents:"
+          curl -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq -r .value | cut -d. -f2 | base64 -d | jq .
 
       - name: Vault OIDC Login
         id: vault
