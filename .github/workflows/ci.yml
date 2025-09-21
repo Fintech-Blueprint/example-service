@@ -36,16 +36,27 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            core.startGroup('OIDC Token Debug Info');
             const token = await core.getIDToken('https://github.com/Fintech-Blueprint');
             console.log('Token received. Decoding claims...');
             const [header, claims, signature] = token.split('.');
             const decodedClaims = JSON.parse(Buffer.from(claims, 'base64').toString());
-            console.log('Claims:', {
-              sub: decodedClaims.sub,
-              repository: decodedClaims.repository,
-              workflow: decodedClaims.workflow,
-              ref: decodedClaims.ref
-            });
+            
+            // Log full claims for debugging
+            console.log('Full Claims:', JSON.stringify(decodedClaims, null, 2));
+            
+            // Extract subject for Vault configuration
+            console.log('\nImportant fields for Vault configuration:');
+            console.log('subject:', decodedClaims.sub);
+            console.log('aud:', decodedClaims.aud);
+            console.log('repository:', decodedClaims.repository);
+            console.log('ref:', decodedClaims.ref);
+            
+            core.endGroup();
+            
+            // Save claims for later steps
+            core.saveState('token_sub', decodedClaims.sub);
+            core.setOutput('token_sub', decodedClaims.sub);
 
       - name: Vault OIDC Login
         id: vault
