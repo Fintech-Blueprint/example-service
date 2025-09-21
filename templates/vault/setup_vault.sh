@@ -35,7 +35,7 @@ vault write auth/jwt/role/github-actions \
     role_type="jwt" \
     bound_audiences="https://github.com/Fintech-Blueprint" \
     bound_issuer="https://token.actions.githubusercontent.com" \
-    bound_subject="repo:Fintech-Blueprint/example-service:ref:refs/heads/ops/vault-oidc-integration" \
+    bound_subject="repo:Fintech-Blueprint/example-service:ref:refs/heads/main" \
     token_policies="github-actions-policy" \
     user_claim="workflow" \
     ttl="10m"
