@@ -30,7 +30,7 @@ jobs:
           fi
 
       - name: Debug OIDC Token Claims
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const token = await core.getIDToken('https://github.com/Fintech-Blueprint');
@@ -43,15 +43,6 @@ jobs:
               workflow: decodedClaims.workflow,
               ref: decodedClaims.ref
             });
-            RESPONSE=$(curl -H "Authorization: Bearer
-              $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault");
-            echo "Token response (claims only):";
-            echo "$RESPONSE" | jq -r .value | cut -d. -f2 | \
-              base64 -d 2>/dev/null || echo "Failed to decode token";
-          else
-            echo "No token URL available";
-          fi
 
       - name: Vault OIDC Login
         id: vault
@@ -66,9 +57,9 @@ jobs:
             secret/data/ci/org_gh_token org_gh_token
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Run linting
         run: |
@@ -84,7 +75,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -178,15 +169,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
-          languages: python
+          languages: python, javascript
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
 
-      - name: Analyze
-        uses: github/codeql-action/analyze@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   audit:
     name: Trigger Audit Trail
