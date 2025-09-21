@@ -29,15 +29,15 @@ jobs:
             cp -r generated-artifacts reports || true;
           fi
 
-      - name: Debug Token Claims
+      - name: Debug OIDC Token Claims
         env:
-          ACTIONS_ID_TOKEN_REQUEST_URL: >-
-            ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: >-
-            ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
-        run: >-
-          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
-            echo "Requesting JWT token...";
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
+        run: |
+          echo "Requesting JWT token..."
+          TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" -s | jq -r '.value')
+          echo "Token received. Decoding claims..."
+          echo $TOKEN | jq -R 'split(".") | .[1] | @base64d | fromjson | {sub, repository, workflow, ref}'
             RESPONSE=$(curl -H "Authorization: Bearer
               $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
               "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault");
