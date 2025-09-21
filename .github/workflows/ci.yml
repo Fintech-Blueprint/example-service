@@ -34,8 +34,8 @@ jobs:
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
+          namespace: admin
           role: github-actions
-          path: jwt
           jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
