@@ -34,7 +34,7 @@ jobs:
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
-          role: github-actions
+          role: ci-github-actions
           path: jwt
           jwtGithubAudience: "vault"
           secrets: |
@@ -184,7 +184,7 @@ jobs:
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
-          role: github-actions
+          role: ci-github-actions
           path: jwt
           jwtGithubAudience: "vault"
           secrets: |
@@ -217,7 +217,7 @@ jobs:
     if: ${{ vars.MODE == 'compliance' }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download generation artifacts
         uses: actions/download-artifact@v4

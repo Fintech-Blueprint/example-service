@@ -11,9 +11,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Authenticate to Vault via OIDC
+      - name: Install Python dependencies
         uses: hashicorp/vault-action@v2
         with:
           url: ${{ secrets.VAULT_ADDR }}

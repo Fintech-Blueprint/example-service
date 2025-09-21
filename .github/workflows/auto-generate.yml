@@ -11,10 +11,10 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Generate boilerplate code
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'

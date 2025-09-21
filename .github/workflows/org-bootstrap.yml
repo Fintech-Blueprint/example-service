@@ -71,7 +71,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Vault OIDC Login (for TF creds)
         id: vault
@@ -79,7 +79,7 @@ jobs:
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: oidc
-          role: github-actions
+          role: ci-github-actions
           secrets: |
             secret/data/ci/tf_api_token tf_api_token
 
