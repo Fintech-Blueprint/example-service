@@ -78,8 +78,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-<<<<<<< HEAD
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -89,7 +88,7 @@ jobs:
       - name: Run pytest and save results
         run: |
           set -o pipefail
-          pytest --maxfail=1 --disable-warnings -q --junitxml=pytest-results.xml 2>&1 | tee pytest.log || rc=$?
+          PYTHONPATH=$PWD pytest --maxfail=1 --disable-warnings -q --junitxml=pytest-results.xml 2>&1 | tee pytest.log || rc=$?
           rc=${rc:-0}
           if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
             echo "Tests failed in compliance mode (rc=$rc)" >&2
@@ -103,39 +102,11 @@ jobs:
           path: |
             pytest-results.xml
             pytest.log
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
-=======
-          python-version: "3.11"
-      - run: pip install -r requirements.txt
-      - name: Run tests
-        run: |
-          PYTHONPATH=$PWD pytest --maxfail=1 --disable-warnings -q
-
-  sast:
-  # The SAST job is defined later with the full CodeQL init/autobuild/analyze steps.
->>>>>>> 783a28a43a895f86a4febd45dac094bd27568edc
 
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
-<<<<<<< HEAD
-    needs: [test]
-=======
-    needs: [lint, test]  # Remove sast from needs since it's optional
->>>>>>> 783a28a43a895f86a4febd45dac094bd27568edc
+    needs: [lint, test]  # Both lint and test are required
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -270,11 +241,7 @@ jobs:
 
       - name: Trigger audit-trail workflow via repository dispatch
         env:
-<<<<<<< HEAD
-          GITHUB_TOKEN: $ORG_GH_TOKEN
-=======
           GITHUB_TOKEN: ${{ env.org_gh_token }}
->>>>>>> 01b1579 (chore(vault): integrate Vault OIDC for GitHub Actions secrets)
         run: |
           set -e
           curl -s -X POST \
@@ -378,20 +345,4 @@ jobs:
         run: |
           pwd
           ls -la
-=======
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
 
-      - name: Generate SBOM
-        run: |
-          pip install cyclonedx-bom
-          # Generate SBOM using correct command syntax (no -r flag)
-          cyclonedx-py requirements requirements.txt -o sbom.xml
-
-      - name: Sign image (cosign)
-        run: |
-          echo "placeholder for cosign signing"
-          # Placeholder: after docker build, update staging-env manifest (to be implemented)
->>>>>>> 783a28a43a895f86a4febd45dac094bd27568edc
