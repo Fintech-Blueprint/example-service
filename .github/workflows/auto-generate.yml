@@ -24,7 +24,7 @@ jobs:
           pip install jinja2
 
       - name: Download spec coverage report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: spec-coverage-report
           path: reports
