@@ -137,3 +137,20 @@ jobs:
         with:
           name: spec-validation-marker
           path: reports/spec-validation-failed
+
+      - name: Upload spec coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-coverage-report
+          path: reports/spec-coverage.json
+
+      - name: Print spec coverage report
+        if: always()
+        run: |
+          if [ -f reports/spec-coverage.json ]; then
+            echo "===== spec-coverage.json ====="
+            cat reports/spec-coverage.json
+          else
+            echo "spec-coverage.json missing"
+          fi
