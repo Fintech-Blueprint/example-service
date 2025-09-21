@@ -1,4 +1,5 @@
 {
   "repository": "Fintech-Blueprint/example-service",
-  "workflow_ref": "Fintech-Blueprint/example-service/.github/workflows/ci.yml@refs/heads/main"
+  "ref": ["refs/heads/main", "refs/heads/*"],
+  "environment": "prod"
 }
