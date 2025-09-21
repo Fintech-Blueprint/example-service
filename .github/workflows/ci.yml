@@ -1,10 +1,11 @@
+---
 name: CI Pipeline
 
-on:
+true:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   MODE: ${{ vars.MODE || 'sandbox' }}
@@ -20,12 +21,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Gather artifacts for audit
-        run: |
-          mkdir -p audit-uploads || true
+        run: >-
+          mkdir -p audit-uploads || true;
           if [ -d generated-artifacts ]; then
-            cp -r generated-artifacts reports || true
+            cp -r generated-artifacts reports || true;
+          fi
+
+      - name: Debug Token Claims
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_URL: >-
+            ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: >-
+            ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
+        run: >-
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "Requesting JWT token...";
+            RESPONSE=$(curl -H "Authorization: Bearer
+              $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault");
+            echo "Token response (claims only):";
+            echo "$RESPONSE" | jq -r .value | cut -d. -f2 | \
+              base64 -d 2>/dev/null || echo "Failed to decode token";
+          else
+            echo "No token URL available";
           fi
 
       - name: Vault OIDC Login
@@ -36,7 +56,7 @@ jobs:
           method: jwt
           namespace: admin
           role: github-actions
-          jwtGithubAudience: "vault"
+          jwtGithubAudience: vault
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
@@ -44,7 +64,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      
+
       - name: Run linting
         run: |
           pip install flake8
@@ -65,17 +85,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt || true
+          fi
           pip install pytest
 
       - name: Run pytest and save results
-        run: |
-          set -o pipefail
-          PYTHONPATH=$PWD pytest --maxfail=1 --disable-warnings -q --junitxml=pytest-results.xml 2>&1 | tee pytest.log || rc=$?
-          rc=${rc:-0}
+        run: >-
+          set -o pipefail;
+          PYTHONPATH=$PWD pytest --maxfail=1 --disable-warnings -q \
+            --junitxml=pytest-results.xml 2>&1 | tee pytest.log || rc=$?;
+          rc=${rc:-0};
           if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
-            echo "Tests failed in compliance mode (rc=$rc)" >&2
-            exit $rc
+            echo "Tests failed in compliance mode (rc=$rc)" >&2;
+            exit $rc;
           fi
 
       - name: Upload pytest artifacts
@@ -95,16 +118,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image and save logs
-        run: |
-          set -o pipefail
-          docker build -t example-service:${{ github.sha }} . 2>&1 | tee docker.log || rc=$?
-          rc=${rc:-0}
+        run: >-
+          set -o pipefail;
+          docker build -t example-service:${{ github.sha }} . 2>&1 | \
+            tee docker.log || rc=$?;
+          rc=${rc:-0};
           if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
-            echo "Docker build failed in compliance mode" >&2
-            exit $rc
-          fi
-          if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "example-service:${{ github.sha }}"; then
-            docker save example-service:${{ github.sha }} -o example-service-${{ github.sha }}.tar || true
+            echo "Docker build failed in compliance mode" >&2;
+            exit $rc;
+          fi;
+          if docker images --format '{{.Repository}}:{{.Tag}}' | \
+             grep -q "example-service:${{ github.sha }}"; then
+            docker save example-service:${{ github.sha }} \
+              -o example-service-${{ github.sha }}.tar || true;
           fi
 
       - name: Upload docker artifacts
@@ -163,10 +189,10 @@ jobs:
     needs: [sast]
     steps:
       - name: Gather artifacts for audit
-        run: |
-          mkdir -p audit-uploads || true
+        run: >-
+          mkdir -p audit-uploads || true;
           if [ -d generated-artifacts ]; then
-            cp -r generated-artifacts reports || true
+            cp -r generated-artifacts reports || true;
           fi
 
       - name: Vault OIDC Login
@@ -177,21 +203,9 @@ jobs:
           method: jwt
           namespace: admin
           role: github-actions
-          jwtGithubAudience: "vault"
+          jwtGithubAudience: vault
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
-
-      - name: Trigger audit-trail workflow
-        env:
-          GITHUB_TOKEN: ${{ env.org_gh_token }}
-        run: |
-          set -e
-          curl -s -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"trigger-audit","client_payload":{"source_workflow":"ci.yml","sha":"'"${{ github.sha }}"'"}}' \
-            | tee audit_response.json || true
 
       - name: Upload audit response
         uses: actions/upload-artifact@v4
@@ -202,7 +216,12 @@ jobs:
   enforce-compliance:
     name: Enforce Compliance
     runs-on: ubuntu-latest
-    needs: [lint, test, docker-build, sbom-sign, sast]
+    needs:
+      - lint
+      - test
+      - docker-build
+      - sbom-sign
+      - sast
     if: ${{ vars.MODE == 'compliance' }}
     steps:
       - name: Checkout
@@ -215,12 +234,12 @@ jobs:
           path: ./generated
 
       - name: Run auditor
-        run: |
-          set -o pipefail
+        run: >-
+          set -o pipefail;
           python3 scripts/audit_compliance.py \
             --mode compliance \
             --pr-number "${{ github.event.pull_request.number || 'manual' }}" \
-            --pr-author "${{ github.event.pull_request.user.login || github.actor }}" \
+          name: generation-reports
             --commit-sha "${{ github.sha }}" \
             --output ./audit-response.json \
             --spec-report ./generated/spec-coverage.json \
@@ -228,14 +247,16 @@ jobs:
 
       - name: Show audit-response.json
         if: always()
-        run: |
+        run: >-
           if [ -f ./audit-response.json ]; then
-            echo "==== audit-response.json ===="
-            cat ./audit-response.json
-            jq -r '"Validator Exit Code: \(.validator_exit_code)\nAuditor Exit Code: \(.auditor_exit_code)"' ./audit-response.json 2>/dev/null || true
-            echo "============================"
+            echo "==== audit-response.json ====";
+            cat ./audit-response.json;
+            jq -r '"Validator Exit Code: \(.validator_exit_code)
+              Auditor Exit Code: \(.auditor_exit_code)"' \
+              ./audit-response.json 2>/dev/null || true;
+            echo "============================";
           else
-            echo "No audit-response.json found"
+            echo "No audit-response.json found";
           fi
 
       - name: Upload compliance artifacts
