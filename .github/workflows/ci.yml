@@ -30,14 +30,19 @@ jobs:
           fi
 
       - name: Debug OIDC Token Claims
-        env:
-          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ env.ACTIONS_ID_TOKEN_REQUEST_URL }}
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ env.ACTIONS_ID_TOKEN_REQUEST_TOKEN }}
-        run: |
-          echo "Requesting JWT token..."
-          TOKEN=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" -s | jq -r '.value')
-          echo "Token received. Decoding claims..."
-          echo $TOKEN | jq -R 'split(".") | .[1] | @base64d | fromjson | {sub, repository, workflow, ref}'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const token = await core.getIDToken('https://github.com/Fintech-Blueprint');
+            console.log('Token received. Decoding claims...');
+            const [header, claims, signature] = token.split('.');
+            const decodedClaims = JSON.parse(Buffer.from(claims, 'base64').toString());
+            console.log('Claims:', {
+              sub: decodedClaims.sub,
+              repository: decodedClaims.repository,
+              workflow: decodedClaims.workflow,
+              ref: decodedClaims.ref
+            });
             RESPONSE=$(curl -H "Authorization: Bearer
               $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
               "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=vault");
