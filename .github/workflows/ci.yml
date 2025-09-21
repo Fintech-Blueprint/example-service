@@ -15,35 +15,35 @@ permissions:
   id-token: write
 
 jobs:
-  lint:
-    name: Lint (flake8)
-    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-<<<<<<< HEAD
-          python-version: '3.11'
-
-      - name: Install flake8
-        run: pip install flake8
-
-      - name: Run flake8 and save log
+      - name: Gather artifacts for audit
         run: |
-          set -o pipefail
-          flake8 . 2>&1 | tee flake8.log || rc=$?
-          rc=${rc:-0}
-          if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
-            echo "Failing because MODE=compliance and lint produced output" >&2
-            exit $rc
+          mkdir -p audit-uploads || true
+          if [ -d generated-artifacts ]; then
+            cp -r generated-artifacts reports || true
           fi
 
-      - name: Upload flake8 log
-        uses: actions/upload-artifact@v4
+      - name: Vault OIDC Login
+        id: vault
+        uses: hashicorp/vault-action@v2
         with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: oidc
+          role: github-actions
+          secrets: |
+            secret/data/ci/org_gh_token org_gh_token
+
+      - name: Trigger audit-trail workflow via repository dispatch
+        env:
+          GITHUB_TOKEN: ${{ env.org_gh_token }}
+        run: |
+          set -e
+          curl -s -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type":"trigger-audit","client_payload":{"source_workflow":"ci.yml","sha":"'"${{ github.sha }}"'"}}' \
+            | tee audit_response.json || true
           name: flake8.log
           path: flake8.log
       - name: Print audit-response.json
@@ -257,9 +257,23 @@ jobs:
             cp -r generated-artifacts reports || true
           fi
 
+      - name: Vault OIDC Login
+        id: vault
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: oidc
+          role: github-actions
+          secrets: |
+            secret/data/ci/org_gh_token org_gh_token
+
       - name: Trigger audit-trail workflow via repository dispatch
         env:
+<<<<<<< HEAD
           GITHUB_TOKEN: $ORG_GH_TOKEN
+=======
+          GITHUB_TOKEN: ${{ env.org_gh_token }}
+>>>>>>> 01b1579 (chore(vault): integrate Vault OIDC for GitHub Actions secrets)
         run: |
           set -e
           curl -s -X POST \
