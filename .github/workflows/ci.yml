@@ -33,8 +33,10 @@ jobs:
         uses: hashicorp/vault-action@v2
         with:
           url: ${{ secrets.VAULT_ADDR }}
-          method: oidc
+          method: jwt
           role: github-actions
+          path: jwt
+          jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
@@ -49,22 +51,7 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d '{"event_type":"trigger-audit","client_payload":{"source_workflow":"ci.yml","sha":"'"${{ github.sha }}"'"}}' \
             | tee audit_response.json || true
-          name: flake8.log
-          path: flake8.log
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -136,20 +123,6 @@ jobs:
           path: |
             docker.log
             example-service-${{ github.sha }}.tar
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
 
   sbom-sign:
     name: Generate SBOM & Sign
@@ -172,20 +145,6 @@ jobs:
         with:
           name: sbom
           path: sbom.xml
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
 
   sast:
     name: SAST (CodeQL)
@@ -206,20 +165,6 @@ jobs:
 
       - name: Analyze
         uses: github/codeql-action/analyze@v2
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
 
   audit:
     name: Trigger Audit Trail
@@ -238,8 +183,10 @@ jobs:
         uses: hashicorp/vault-action@v2
         with:
           url: ${{ secrets.VAULT_ADDR }}
-          method: oidc
+          method: jwt
           role: github-actions
+          path: jwt
+          jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
@@ -260,20 +207,6 @@ jobs:
         with:
           name: audit-response
           path: audit_response.json
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
 
   enforce-compliance:
     name: Enforce Compliance
@@ -316,14 +249,6 @@ jobs:
             echo "No audit-response.json found"
           fi
 
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          echo "===== Current directory ====="
-          pwd
-          echo "===== Files ====="
-          ls -la
-
       - name: Upload audit-response.json and logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -335,18 +260,3 @@ jobs:
             flake8.log
             docker.log
             sbom.xml
-      - name: Print audit-response.json
-        if: always()
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          pwd
-          ls -la
-
