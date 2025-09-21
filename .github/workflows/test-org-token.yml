@@ -51,7 +51,7 @@ jobs:
 
       - name: Try safe repo dispatch
         env:
-          ORG_GH_TOKEN: ${{ env.org_gh_token }}
+          ORG_GH_TOKEN: ${{ env.ORG_GH_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /tmp/dispatch_response.json -w "%{http_code}" \
             -X POST \
