@@ -2,6 +2,9 @@ name: Test ORG_GH_TOKEN
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - 'ops/vault-oidc-integration'
 
 jobs:
   test-token:
