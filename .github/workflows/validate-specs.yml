@@ -1,6 +1,7 @@
+---
 name: Validate Specifications
 
-on:
+"on":
   pull_request:
     paths:
       - 'specs/**'
@@ -59,12 +60,20 @@ jobs:
                                   elif step.strip().startswith('Then '):
                                       has_then = True
                               if not (has_given and has_when and has_then):
-                                  issues.append({'file': str(feature_file), 'line': i, 'issue': 'Incomplete scenario steps'})
+                                  issues.append({
+                                      'file': str(feature_file),
+                                      'line': i,
+                                      'issue': 'Incomplete scenario steps'
+                                  })
                               else:
                                   implemented += 1
 
               report = {
-                  'spec_coverage': round((implemented / total_scenarios * 100) if total_scenarios > 0 else 0, 2),
+                  'spec_coverage': round(
+                      (implemented / total_scenarios * 100)
+                      if total_scenarios > 0 else 0,
+                      2
+                  ),
                   'total_scenarios': total_scenarios,
                   'implemented_scenarios': implemented,
                   'errors': issues
@@ -78,7 +87,10 @@ jobs:
                   print('❌ Specification validation failed!')
                   print(f'Found {len(issues)} issues:')
                   for issue in issues:
-                      print(f"- {issue['file']}:{issue['line']} - {issue['issue']}")
+                      print(
+                          f"- {issue['file']}:{issue['line']} - "
+                          f"{issue['issue']}"
+                      )
                   with open('reports/spec-validation-failed','w') as m:
                       m.write('failed')
                   raise SystemExit(1)
@@ -98,42 +110,3 @@ jobs:
         with:
           name: spec-coverage-report
           path: reports/spec-coverage.json
-      - name: Print audit-response.json
-        run: |
-          if [ -f ./audit-response.json ]; then
-            echo "===== audit-response.json ====="
-            cat ./audit-response.json
-          else
-            echo "audit-response.json missing"
-          fi
-        if: always()
-      - name: Print working directory & file listing
-        run: |
-          pwd
-          ls -la
-        if: always()
-
-      - name: Print spec coverage report
-        if: always()
-        run: |
-          if [ -f reports/spec-coverage.json ]; then
-            echo "===== spec-coverage.json ====="
-            cat reports/spec-coverage.json
-          else
-            echo "spec-coverage.json missing"
-          fi
-
-      - name: Print working directory & file listing
-        if: always()
-        run: |
-          echo "===== Current directory ====="
-          pwd
-          echo "===== Files ====="
-          ls -la
-
-      - name: Upload validation marker
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: spec-validation-marker
-          path: reports/spec-validation-failed
