@@ -35,22 +35,11 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
           role: ci-github-actions
+          namespace: admin
           path: jwt
           jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
-
-      - name: Trigger audit-trail workflow via repository dispatch
-        env:
-          GITHUB_TOKEN: ${{ env.org_gh_token }}
-        run: |
-          set -e
-          curl -s -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"trigger-audit","client_payload":{"source_workflow":"ci.yml","sha":"'"${{ github.sha }}"'"}}' \
-            | tee audit_response.json || true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -185,6 +174,7 @@ jobs:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
           role: ci-github-actions
+          namespace: admin
           path: jwt
           jwtGithubAudience: "vault"
           secrets: |
@@ -259,4 +249,4 @@ jobs:
             pytest-results.xml
             flake8.log
             docker.log
-            sbom.xml# Vault role: ci-github-actions
+            sbom.xml
