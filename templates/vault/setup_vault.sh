@@ -35,7 +35,7 @@ vault write auth/jwt/role/github-actions \
     role_type="jwt" \
     bound_audiences="vault" \
     bound_issuer="https://token.actions.githubusercontent.com" \
-    bound_claims=@bound_claims.json \
+    bound_subject="repo:Fintech-Blueprint/example-service:*" \
     token_policies="github-actions-policy" \
     user_claim="workflow" \
     ttl="10m"
