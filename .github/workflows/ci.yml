@@ -16,13 +16,7 @@ permissions:
 
 jobs:
   lint:
-      - uses: actions/checkout@v4
-
-      - name: Download generation artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: generation-reports
-          path: ./generatede: Lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,24 +40,15 @@ jobs:
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
-      - name: Trigger audit-trail workflow via repository dispatch
-        env:
-          GITHUB_TOKEN: ${{ env.org_gh_token }}
-        run: |
-          set -e
-          curl -s -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"trigger-audit","client_payload":{"source_workflow":"ci.yml","sha":"'"${{ github.sha }}"'"}}' \
-            | tee audit_response.json || true
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install flake8
-      - run: flake8 src tests
+      
+      - name: Run linting
+        run: |
+          pip install flake8
+          flake8 src tests
 
   test:
     name: Test (pytest)
@@ -104,7 +89,7 @@ jobs:
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
-    needs: [lint, test]  # Both lint and test are required
+    needs: [lint, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -190,13 +175,13 @@ jobs:
         with:
           url: ${{ secrets.VAULT_ADDR }}
           method: jwt
+          namespace: admin
           role: github-actions
-          path: jwt
           jwtGithubAudience: "vault"
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
-      - name: Trigger audit-trail workflow via repository dispatch
+      - name: Trigger audit-trail workflow
         env:
           GITHUB_TOKEN: ${{ env.org_gh_token }}
         run: |
@@ -218,20 +203,18 @@ jobs:
     name: Enforce Compliance
     runs-on: ubuntu-latest
     needs: [lint, test, docker-build, sbom-sign, sast]
-    env:
-      MODE: ${{ ((github.event_name == 'pull_request' && startsWith(github.head_ref, 'auto/spec-implementation')) || startsWith(github.ref, 'refs/heads/auto/spec-implementation')) && 'compliance' || vars.MODE || 'sandbox' }}
     if: ${{ vars.MODE == 'compliance' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Download generation artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generation-reports
           path: ./generated
 
-      - name: Run auditor (produces audit-response.json)
+      - name: Run auditor
         run: |
           set -o pipefail
           python3 scripts/audit_compliance.py \
@@ -255,7 +238,7 @@ jobs:
             echo "No audit-response.json found"
           fi
 
-      - name: Upload audit-response.json and logs
+      - name: Upload compliance artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
