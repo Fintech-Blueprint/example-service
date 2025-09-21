@@ -6,10 +6,10 @@ This document outlines the plan to adopt Vault OIDC authentication for GitHub Ac
 ## Current Adoption Status
 Below is the current status of Vault OIDC adoption across our repositories. This table is automatically updated using the `check_adoption.sh` script.
 
-### Core Services
+### Current Status (Updated: 2025-09-21)
 | Repo | Vault Role Created | Secrets Uploaded | Workflows Updated | Verified |
 |------|------------------|-----------------|------------------|----------|
-| example-service | ✅ | ✅ | ✅ | ✅ |
+| example-service | ✅ | ⬜ | ✅ | ⬜ |
 | api-gateway | ⬜ | ⬜ | ⬜ | ⬜ |
 | db-manager | ⬜ | ⬜ | ⬜ | ⬜ |
 
