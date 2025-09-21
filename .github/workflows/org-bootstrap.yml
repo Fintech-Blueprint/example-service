@@ -71,7 +71,7 @@ jobs:
     if: success()
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Vault OIDC Login (for TF creds)
         id: vault
