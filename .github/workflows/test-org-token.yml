@@ -25,6 +25,7 @@ jobs:
           method: jwt
           jwtGithubAudience: "https://github.com/Fintech-Blueprint"
           role: github-actions
+          namespace: admin
           path: jwt
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
