@@ -259,4 +259,4 @@ jobs:
             pytest-results.xml
             flake8.log
             docker.log
-            sbom.xml
+            sbom.xml# Vault role: ci-github-actions
