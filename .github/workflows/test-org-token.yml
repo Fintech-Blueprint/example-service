@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'ops/vault-oidc-integration'
+      - 'fix/workflow-yaml'
 
 jobs:
   test-token:
@@ -31,11 +31,8 @@ jobs:
           ACTIONS_STEP_DEBUG: true
         with:
           url: ${{ secrets.VAULT_ADDR }}
-          method: jwt
-          jwtGithubAudience: "https://github.com/Fintech-Blueprint"
+          method: oidc
           role: github-actions
-          namespace: admin
-          path: jwt
           secrets: |
             secret/data/ci/org_gh_token org_gh_token
 
