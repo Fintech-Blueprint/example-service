@@ -37,7 +37,7 @@ jobs:
         with:
           script: |
             core.startGroup('OIDC Token Debug Info');
-            const token = await core.getIDToken('https://github.com/Fintech-Blueprint');
+            const token = await core.getIDToken('vault');
             console.log('Token received. Decoding claims...');
             const [header, claims, signature] = token.split('.');
             const decodedClaims = JSON.parse(Buffer.from(claims, 'base64').toString());

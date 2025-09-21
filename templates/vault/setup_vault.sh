@@ -33,7 +33,7 @@ vault policy write github-actions-policy github-actions-policy.hcl
 
 vault write auth/jwt/role/github-actions \
     role_type="jwt" \
-    bound_audiences="https://github.com/Fintech-Blueprint" \
+    bound_audiences="vault" \
     bound_issuer="https://token.actions.githubusercontent.com" \
     bound_claims=@bound_claims.json \
     token_policies="github-actions-policy" \
