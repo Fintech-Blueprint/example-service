@@ -28,6 +28,14 @@ jobs:
             cp -r generated-artifacts reports || true
           fi
 
+      - name: Debug OIDC token (lint)
+        id: oidc-debug-lint
+        run: |
+          echo "Requesting ID token for audit..."
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq . || true
+          echo "Token value (payload base64 decoded):"
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq -r .value | cut -d. -f2 | base64 -d | jq . || true
+
       - name: Vault OIDC Login
         id: vault
         uses: hashicorp/vault-action@v2
@@ -166,6 +174,14 @@ jobs:
           if [ -d generated-artifacts ]; then
             cp -r generated-artifacts reports || true
           fi
+
+      - name: Debug OIDC token (audit)
+        id: oidc-debug-audit
+        run: |
+          echo "Requesting ID token for audit..."
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq . || true
+          echo "Token value (payload base64 decoded):"
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://github.com/Fintech-Blueprint" | jq -r .value | cut -d. -f2 | base64 -d | jq . || true
 
       - name: Vault OIDC Login
         id: vault
