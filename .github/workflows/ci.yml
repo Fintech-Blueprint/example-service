@@ -59,12 +59,13 @@ jobs:
         if: always()
         run: |
           pwd
-           ls -la
-=======
+          ls -la
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
           python-version: "3.11"
       - run: pip install flake8
       - run: flake8 src tests
->>>>>>> 783a28a43a895f86a4febd45dac094bd27568edc
 
   test:
     name: Test (pytest)
