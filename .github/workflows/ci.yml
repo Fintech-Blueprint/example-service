@@ -32,23 +32,14 @@ jobs:
             cp -r generated-artifacts reports || true;
           fi
 
-      - name: Get OIDC Token
-        id: get-token
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const token = await core.getIDToken('vault');
-            core.setOutput('token', token);
-            core.setOutput('url', process.env.ACTIONS_ID_TOKEN_REQUEST_URL);
-
-      - name: Show OIDC sub claim
+      - name: Debug OIDC sub
         run: |
           token=$(curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=vault")
-          claims=$(echo $token | cut -d '.' -f2 | base64 -d 2>/dev/null | jq)
-          echo "SUB claim: $(echo $claims | jq -r .sub)"
+          sub=$(echo $token | cut -d '.' -f2 | base64 -d 2>/dev/null | jq -r .sub)
+          echo "OIDC sub: $sub"
         env:
-          ACTIONS_ID_TOKEN: ${{ steps.get-token.outputs.token }}
-          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ steps.get-token.outputs.url }}
+          ACTIONS_ID_TOKEN: ${{ github.token }}
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ github.api_url }}/actions/oidc/token
 
       - name: Vault OIDC Login
         id: vault
