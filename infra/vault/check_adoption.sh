@@ -48,6 +48,6 @@ gh repo list "$ORG" --json name --jq '.[].name' | while read -r repo; do
     secret_status=$(check_secret "$repo")
     role_status=$(check_vault_role "$repo")
     verified=$([[ "$workflow_status" = "✅" && "$secret_status" = "✅" && "$role_status" = "✅" ]] && echo "✅" || echo "⬜")
-    
+
     echo "| $repo | $role_status | $secret_status | $workflow_status | $verified |"
 done

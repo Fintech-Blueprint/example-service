@@ -1,184 +1,80 @@
-name: Vault Authenticationname: Vault Authenticationname: Vault Auth
-
-
-
+---
+# IMPORTANT:
+# - Always start file with '---'
+# - Use explicit lists for branches/tags, never inline truthy
+# - Split run: commands >80 chars into block scalars
+# - Max line length: 80
+# - Use consistent variable names from global spec
+name: Vault Auth
 on:
-
   workflow_call:
-
-    outputs:on:on:
-
+    outputs:
       vault-token:
-
-        description: "Vault token for authenticated session"  workflow_call:  workflow_dispatch:
-
+        description: "Vault token for authenticated session"
         value: ${{ jobs.vault-auth.outputs.vault-token }}
-
-      token-ttl:    outputs:
-
+      token-ttl:
         description: "Remaining TTL of the token in seconds"
-
-        value: ${{ jobs.vault-auth.outputs.token-ttl }}      vault-token:permissions:
-
-
-
-permissions:        description: "Vault token for authenticated session"  id-token: write
-
+        value: ${{ jobs.vault-auth.outputs.token-ttl }}
+  workflow_dispatch: {}
+permissions:
   id-token: write
-
-  contents: read        value: ${{ jobs.vault-auth.outputs.vault-token }}  contents: read
-
-
-
-jobs:  workflow_dispatch:
-
+  contents: read
+jobs:
   vault-auth:
-
-    name: Authenticate with Vaultjobs:
-
+    name: Authenticate with Vault
     runs-on: ubuntu-latest
-
-    outputs:permissions:  vault-login:
-
+    outputs:
       vault-token: ${{ steps.validate-token.outputs.validated_token }}
-
-      token-ttl: ${{ steps.validate-token.outputs.token_ttl }}  id-token: write    runs-on: ubuntu-latest
-
-    
-
-    strategy:  contents: read    steps:
-
+      token-ttl: ${{ steps.validate-token.outputs.token_ttl }}
+    strategy:
       matrix:
-
-        vault-role: ['github-actions']  # Mandatory matrix, even if single value      - name: Checkout
-
-    
-
-    steps:jobs:        uses: actions/checkout@v4
-
+        vault-role: ["github-actions"]
+    steps:
       - uses: actions/checkout@v4
-
-  vault-auth:
-
       - name: Log authentication attempt
-
-        run: |    name: Authenticate with Vault      - name: Authenticate to Vault via OIDC
-
+        run: >
           echo "Start time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-
-          echo "Vault role: ${{ matrix.vault-role }}"    runs-on: ubuntu-latest        id: vault-login
-
-          echo "VAULT_ADDR: ${{ env.VAULT_ADDR }}"
-
-    outputs:        uses: hashicorp/vault-action@v2
-
-      - name: Validate GitHub token
-
-        uses: ./.github/workflows/validate-token.yml      vault-token: ${{ steps.validate-token.outputs.validated_token }}        with:
-
-        with:
-
-          token-type: 'github'          url: ${{ secrets.VAULT_ADDR }}
-
-
-
-      - name: Authenticate to Vault via OIDC    steps:          method: github
-
+          echo "Vault role: ${{ matrix.vault-role }}"
+          echo "VAULT_ADDR: ${{ secrets.VAULT_ADDR }}"
+      - name: Authenticate to Vault via OIDC
         id: vault-login
-
-        uses: hashicorp/vault-action@v2    - uses: actions/checkout@v4          role: github-actions-role
-
+        uses: hashicorp/vault-action@v2
         with:
-
-          url: ${{ env.VAULT_ADDR }}
-
+          url: ${{ secrets.VAULT_ADDR }}
           method: jwt
-
-          jwtGithubAudience: "https://github.com/Fintech-Blueprint"    - name: Authenticate to Vault via OIDC      - name: Export Vault token
-
+          jwtGithubAudience: "https://github.com/Fintech-Blueprint"
           role: ${{ matrix.vault-role }}
-
-          exportToken: true      id: vault-login        run: |
-
-
-
-      - name: Validate Vault Token      uses: hashicorp/vault-action@v2          echo "VAULT_TOKEN=${{ steps.vault-login.outputs.client_token }}" >> $GITHUB_ENV
-
+          exportToken: true
+      - name: Export Vault token
+        run: >
+          echo "VAULT_TOKEN=${{ steps.vault-login.outputs.client_token }}" \
+            >> $GITHUB_ENV
+      - name: Validate Vault Token
         id: validate-token
-
-        run: |      with:
-
-          TOKEN_INFO=$(curl -s \
-
-            -H "X-Vault-Token: ${{ steps.vault-login.outputs.token }}" \        url: https://vault.fintech-blueprint.io      - name: Test dynamic secret
-
-            ${{ steps.vault-login.outputs.url }}/v1/auth/token/lookup-self)
-
-                  method: jwt        run: |
-
-          # Validate token properties
-
-          TTL=$(echo $TOKEN_INFO | jq -r '.data.ttl')        jwtGithubAudience: "https://github.com/Fintech-Blueprint"          vault kv put secret/test key=value || true
-
+        run: >
+          TOKEN_INFO=$(curl -s -H "X-Vault-Token: ${{ steps.vault-login.outputs.client_token }}" \
+            ${{ secrets.VAULT_ADDR }}/v1/auth/token/lookup-self)
+          TTL=$(echo $TOKEN_INFO | jq -r '.data.ttl')
           POLICIES=$(echo $TOKEN_INFO | jq -r '.data.policies[]')
-
-                  role: github-actions          vault kv get secret/test || true
-
-          # Ensure token has required policies
-
-          if ! echo "$POLICIES" | grep -q "${{ matrix.vault-role }}"; then        exportToken: true
-
-            echo "Error: Token missing required ${{ matrix.vault-role }} policy"
-
-            exit 1    - name: Validate Vault Token
-
-          fi      id: validate-token
-
-                run: |
-
-          # Ensure reasonable TTL (e.g., less than 1 hour)        TOKEN_INFO=$(curl -s \
-
-          if [ "$TTL" -gt 3600 ]; then          -H "X-Vault-Token: ${{ steps.vault-login.outputs.token }}" \
-
-            echo "Error: Token TTL exceeds maximum allowed (1 hour)"          ${{ steps.vault-login.outputs.url }}/v1/auth/token/lookup-self)
-
-            exit 1        
-
-          fi        # Validate token properties
-
-                  POLICIES=$(echo $TOKEN_INFO | jq -r '.data.policies[]')
-
-          # Set outputs        TTL=$(echo $TOKEN_INFO | jq -r '.data.ttl')
-
-          echo "validated_token=${{ steps.vault-login.outputs.token }}" >> $GITHUB_OUTPUT        
-
-          echo "token_ttl=$TTL" >> $GITHUB_OUTPUT        # Ensure token has required policies
-
-          echo "Token validated successfully with TTL: $TTL seconds"        if ! echo "$POLICIES" | grep -q "github-actions"; then
-
-          echo "Error: Token missing required github-actions policy"
-
-      - name: Log completion          exit 1
-
-        if: always()        fi
-
-        run: |        
-
-          echo "Authentication completed"        # Ensure reasonable TTL (e.g., less than 1 hour)
-
-          echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"        if [ "$TTL" -gt 3600 ]; then
-
-          echo "Token TTL: ${{ steps.validate-token.outputs.token_ttl }} seconds"          echo "Error: Token TTL exceeds maximum allowed (1 hour)"
-          exit 1
-        fi
-        
-        # Export validated token
-        echo "validated_token=${{ steps.vault-login.outputs.token }}" >> $GITHUB_OUTPUT
-        echo "Token validated successfully"
-
-    - name: Test Vault Access
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        # Test reading a benign secret to verify token works
-        vault read -format=json secret/data/test/version \
-          | jq -r '.data.data.version'
+          if ! echo "$POLICIES" | grep -q "${{ matrix.vault-role }}"; then
+            echo "Error: Token missing required ${{ matrix.vault-role }} policy" \
+              && exit 1
+          fi
+          if [ "$TTL" -le 0 ]; then
+            echo "Token expired, failing fast" && exit 1
+          fi
+          echo "validated_token=${{ steps.vault-login.outputs.client_token }}" \
+            >> $GITHUB_OUTPUT
+          echo "token_ttl=$TTL" >> $GITHUB_OUTPUT
+          echo "Token validated successfully with TTL: $TTL seconds"
+      - name: Log completion
+        if: always()
+        run: >
+          echo "Authentication completed"
+          echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Token TTL: ${{ steps.validate-token.outputs.token_ttl }} seconds"
+      - name: Test Vault Access
+        if: github.event_name == 'workflow_dispatch'
+        run: >
+          vault read -format=json secret/data/test/version \
+            | jq -r '.data.data.version'

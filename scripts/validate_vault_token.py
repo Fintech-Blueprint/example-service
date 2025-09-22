@@ -11,23 +11,23 @@ def validate_token_ttl():
     token = os.getenv('VAULT_TOKEN')
     if not token:
         raise ValueError("VAULT_TOKEN environment variable is required")
-        
+
     # Use vault CLI to lookup token
     result = os.popen('vault token lookup -format=json').read()
     data = json.loads(result)
-    
+
     ttl = data['data']['ttl']
     creation_time = datetime.fromtimestamp(data['data']['creation_time'])
     expire_time = creation_time + timedelta(seconds=ttl)
-    
+
     now = datetime.now(timezone.utc)
     remaining = expire_time - now
-    
+
     print("\n=== Vault Token Validation ===")
     print(f"Current time: {now.isoformat()}")
     print(f"Token expires: {expire_time.isoformat()}")
     print(f"Remaining TTL: {remaining.total_seconds():.0f} seconds")
-    
+
     if remaining.total_seconds() <= 0:
         raise Exception("Token has expired!")
     elif remaining.total_seconds() < 3600:  # Less than 1 hour

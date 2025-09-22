@@ -1,78 +1,68 @@
+---
+# IMPORTANT:
+# - Always start file with '---'
+# - Use explicit lists for branches/tags, never inline truthy
+# - Split run: commands >80 chars into block scalars
+# - Max line length: 80
+# - Use consistent variable names from global spec
 name: Canary Tests
-
 on:
   schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight UTC
-  workflow_dispatch:
-
+    - cron: '0 0 * * *'
+  workflow_dispatch: {}
 permissions:
   contents: read
   issues: write
-
 jobs:
   canary:
     name: Run Canary Tests
     runs-on: ubuntu-latest
-    
     strategy:
       matrix:
         python-version: ['3.11']
         check-type: ['vault-auth', 'api-health', 'dependencies']
-    
     steps:
       - uses: actions/checkout@v4
-
       - name: Log canary start
-        run: |
+        run: >
           echo "Start time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo "Check type: ${{ matrix.check-type }}"
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-
       - name: Install dependencies
-        run: |
+        run: >
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r patch_requirements.txt
-
       - name: Run canary checks
         id: canary
-        run: |
+        run: >
           case "${{ matrix.check-type }}" in
             "vault-auth")
-              # Test Vault OIDC authentication
               echo "Testing Vault OIDC authentication..."
               ./.github/workflows/validate-token.yml token-type=vault
               ;;
-              
             "api-health")
-              # Test API health endpoints
-              echo "Testing API health endpoints..."
-              python scripts/health_check.py
+              echo "Testing API health..."
+              curl -f http://localhost:8000/ping || exit 1
               ;;
-              
             "dependencies")
-              # Test dependency resolution
-              echo "Testing dependency resolution..."
-              pip check
+              echo "Testing dependencies..."
+              pip check || exit 1
               ;;
-              
             *)
               echo "Unsupported check type: ${{ matrix.check-type }}"
               exit 1
               ;;
           esac
-
       - name: Log completion
         if: always()
         run: |
           echo "Canary completed for ${{ matrix.check-type }}"
           echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-
       - name: Create issue on failure
         if: failure()
         uses: actions/github-script@v6

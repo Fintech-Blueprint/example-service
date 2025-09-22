@@ -107,10 +107,10 @@ vault auth list
      ```bash
      # Verify token is set
      echo $VAULT_TOKEN
-     
+
      # Verify token has correct permissions
      vault token lookup
-     
+
      # Generate new token if needed from HCP portal
      ```
 
@@ -120,7 +120,7 @@ vault auth list
      ```bash
      # Verify Ubuntu version
      lsb_release -cs
-     
+
      # Manually add repository if auto-detection fails
      sudo add-apt-repository "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
      ```

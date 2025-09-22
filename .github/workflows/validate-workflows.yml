@@ -1,0 +1,21 @@
+---
+# IMPORTANT:
+# - Always start file with '---'
+# - Use explicit lists for branches/tags, never inline truthy
+# - Split run: commands >80 chars into block scalars
+# - Max line length: 80
+# - Use consistent variable names from global spec
+name: Validate Workflows
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/*.yml"
+
+jobs:
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yamllint
+      - run: yamllint .github/workflows
