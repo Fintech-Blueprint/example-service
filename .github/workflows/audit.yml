@@ -42,6 +42,87 @@ jobs:
     - name: Validate specification coverage
       run: |
         python scripts/validate_spec_coverage.py --threshold 90
+        
+    - name: Run security checks
+      run: |
+        python scripts/security_scan.py \
+          --check-dependencies \
+          --check-secrets \
+          --scan-specifications
+          
+    - name: Generate resource estimates
+      run: |
+        python scripts/resource_estimator.py
+        
+    - name: Run SAST scan
+      uses: github/codeql-action/analyze@v2
+      with:
+        languages: python
+        queries: security-extended,security-and-quality
+
+    - name: Run container security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs,config'
+        ignore-unfixed: true
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+        category: container-security
+
+    - name: Create audit report
+      if: always()
+      run: |
+        {
+          echo "# Audit Report - $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "## Summary"
+          echo "- Repository: $GITHUB_REPOSITORY"
+          echo "- Workflow: $GITHUB_WORKFLOW"
+          echo "- Trigger: ${{ github.event_name }}"
+          
+          echo "## Audit Trail"
+          cat generated/audit-trail.json | jq -r
+          
+          echo "## Coverage Report"
+          cat reports/spec-coverage.json | jq -r
+          
+          echo "## Security Scan Results"
+          cat reports/security-scan.json | jq -r
+          
+          echo "## Resource Estimates"
+          cat reports/resource-estimates.json | jq -r
+        } > reports/audit-report.md
+
+    - name: Upload audit report
+      uses: actions/upload-artifact@v3
+      with:
+        name: audit-report
+        path: |
+          reports/
+          generated/
+          trivy-results.sarif
+        retention-days: 30
+
+    - name: Create issue on failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('reports/audit-report.md', 'utf8');
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Audit Check Failure',
+            body: report,
+            labels: ['audit-failure', 'needs-attention', 'security']
+          });
       run: python scripts/validate_spec_coverage.py
 
     - name: Resource estimation

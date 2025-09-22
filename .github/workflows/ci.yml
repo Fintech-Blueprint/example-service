@@ -1,0 +1,446 @@
+name: CI Pipeline---
+
+name: CI Pipeline
+
+on:
+
+  push:"on":
+
+    branches: [ main ]  push:
+
+    tags: [ 'v*' ]    branches: [main]
+
+  pull_request:  pull_request:
+
+    branches: [ main ]    branches: [main]
+
+  workflow_dispatch:
+
+env:
+
+permissions:  MODE: ${{ vars.MODE || 'sandbox' }}
+
+  contents: read
+
+  security-events: writepermissions:
+
+  actions: read  contents: write
+
+  id-token: write  actions: write
+
+  id-token: write
+
+jobs:  contents: read
+
+  vault-auth:
+
+    name: Vault Authenticationjobs:
+
+    uses: ./.github/workflows/vault-auth.yml  lint:
+
+    name: Lint
+
+  lint:    runs-on: ubuntu-latest
+
+    name: Lint Check    permissions:
+
+    needs: vault-auth      contents: read
+
+    uses: ./.github/workflows/lint.yml      id-token: write
+
+    steps:
+
+  validate-specs:      - uses: actions/checkout@v4
+
+    name: Validate Specifications
+
+    needs: vault-auth      - name: Gather artifacts for audit
+
+    uses: ./.github/workflows/validate-specs.yml        run: >-
+
+              mkdir -p audit-uploads || true;
+
+  generate-code:          if [ -d generated-artifacts ]; then
+
+    name: Generate from Specs            cp -r generated-artifacts reports || true;
+
+    needs: [validate-specs]          fi
+
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    uses: ./.github/workflows/auto-generate.yml      - name: Debug Context
+
+        run: |
+
+  test:          echo "GitHub Context:"
+
+    name: Run Tests          echo "  Ref: ${{ github.ref }}"
+
+    needs: [lint, validate-specs]          echo "  SHA: ${{ github.sha }}"
+
+    uses: ./.github/workflows/test.yml          echo "  Repository: ${{ github.repository }}"
+
+          echo "  Workflow: ${{ github.workflow }}"
+
+  security-scan:          echo "  Event Name: ${{ github.event_name }}"
+
+    name: Security Scan
+
+    runs-on: ubuntu-latest      - name: Request OIDC Token
+
+    needs: [test]        id: request-token
+
+    steps:        uses: actions/github-script@v7
+
+      - uses: actions/checkout@v4        with:
+
+                script: |
+
+      - name: Run Trivy vulnerability scanner            try {
+
+        uses: aquasecurity/trivy-action@master              core.startGroup('Requesting OIDC Token');
+
+        with:              console.log('Getting token with audience: vault');
+
+          scan-type: 'fs,config'              const token = await core.getIDToken('vault');
+
+          ignore-unfixed: true              console.log('Token received successfully');
+
+          format: 'sarif'              const [header, payload, signature] = token.split('.');
+
+          output: 'trivy-results.sarif'              const claims = JSON.parse(Buffer.from(payload, 'base64').toString());
+
+          severity: 'CRITICAL,HIGH'              console.log('\nToken Claims:');
+
+              console.log('------------');
+
+      - name: Run SAST scan              console.log('sub:', claims.sub);
+
+        uses: github/codeql-action/analyze@v2              console.log('aud:', claims.aud);
+
+        with:              console.log('iss:', claims.iss);
+
+          languages: python              console.log('repository:', claims.repository);
+
+          queries: security-extended,security-and-quality              console.log('ref:', claims.ref);
+
+              core.endGroup();
+
+      - name: Upload security results              
+
+        uses: actions/upload-artifact@v3              core.saveState('sub_claim', claims.sub);
+
+        with:              core.setOutput('has_token', 'true');
+
+          name: security-results            } catch (error) {
+
+          path: |              core.error(`Failed to get OIDC token: ${error.message}`);
+
+            trivy-results.sarif              throw error;
+
+            reports/security-scan.json            }
+
+          retention-days: 30
+
+      - name: Verify Claims
+
+  build:        if: steps.request-token.outputs.has_token == 'true'
+
+    name: Build and Push        run: |
+
+    needs: [security-scan]          echo "OIDC token received successfully"
+
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')          echo "Proceeding with Vault authentication..."
+
+    uses: ./.github/workflows/deploy.yml
+
+      - name: Vault OIDC Login
+
+  audit:        id: vault
+
+    name: Final Audit        uses: hashicorp/vault-action@v3
+
+    needs: [build]        with:
+
+    if: always()          url: ${{ secrets.VAULT_ADDR }}
+
+    uses: ./.github/workflows/audit.yml          method: jwt
+
+          namespace: admin
+
+  report:          role: github-actions
+
+    name: Pipeline Report          jwtGithubAudience: vault
+
+    needs: [audit]          secrets: |
+
+    if: always()            secret/data/ci/org_gh_token org_gh_token
+
+    runs-on: ubuntu-latest
+
+    steps:      - name: Set up Python
+
+      - name: Download all artifacts        uses: actions/setup-python@v5
+
+        uses: actions/download-artifact@v3        with:
+
+        with:          python-version: ${{ env.PYTHON_VERSION }}
+
+          path: artifacts
+
+      - name: Run linting
+
+      - name: Generate pipeline report        run: |
+
+        run: |          pip install flake8
+
+          {          flake8 src tests
+
+            echo "# CI Pipeline Report"
+
+            echo "## Status Summary"  test:
+
+            echo "- Vault Auth: ${{ needs.vault-auth.result }}"    name: Test (pytest)
+
+            echo "- Lint: ${{ needs.lint.result }}"    runs-on: ubuntu-latest
+
+            echo "- Specs: ${{ needs.validate-specs.result }}"    needs: [lint]
+
+            echo "- Tests: ${{ needs.test.result }}"    steps:
+
+            echo "- Security: ${{ needs.security-scan.result }}"      - name: Checkout
+
+            echo "- Build: ${{ needs.build.result }}"        uses: actions/checkout@v4
+
+            echo "- Audit: ${{ needs.audit.result }}"
+
+                  - name: Setup Python
+
+            echo "## Security Issues"        uses: actions/setup-python@v5
+
+            if [ -f "artifacts/security-results/trivy-results.sarif" ]; then        with:
+
+              cat artifacts/security-results/trivy-results.sarif | jq -r '.runs[].results[]'          python-version: "3.11"
+
+            fi
+
+                  - name: Install dependencies
+
+            echo "## Test Coverage"        run: |
+
+            if [ -f "artifacts/test-results/coverage.json" ]; then          if [ -f requirements.txt ]; then
+
+              cat artifacts/test-results/coverage.json | jq -r            pip install -r requirements.txt || true
+
+            fi          fi
+
+                      pip install pytest
+
+            echo "## Audit Summary"
+
+            if [ -f "artifacts/audit-report/audit-report.md" ]; then      - name: Run pytest and save results
+
+              cat artifacts/audit-report/audit-report.md        run: >-
+
+            fi          set -o pipefail;
+
+          } > pipeline-report.md          PYTHONPATH=$PWD pytest --maxfail=1 --disable-warnings -q \
+
+            --junitxml=pytest-results.xml 2>&1 | tee pytest.log || rc=$?;
+
+      - name: Upload pipeline report          rc=${rc:-0};
+
+        uses: actions/upload-artifact@v3          if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
+
+        with:            echo "Tests failed in compliance mode (rc=$rc)" >&2;
+
+          name: pipeline-report            exit $rc;
+
+          path: pipeline-report.md          fi
+
+          retention-days: 30
+
+      - name: Upload pytest artifacts
+
+      - name: Create issue on failure        uses: actions/upload-artifact@v4
+
+        if: failure()        with:
+
+        uses: actions/github-script@v6          name: pytest-results
+
+        with:          path: |
+
+          script: |            pytest-results.xml
+
+            const fs = require('fs');            pytest.log
+
+            const report = fs.readFileSync('pipeline-report.md', 'utf8');
+
+              docker-build:
+
+            await github.rest.issues.create({    name: Docker Build
+
+              owner: context.repo.owner,    runs-on: ubuntu-latest
+
+              repo: context.repo.repo,    needs: [lint, test]
+
+              title: 'CI Pipeline Failure',    steps:
+
+              body: report,      - name: Checkout
+
+              labels: ['ci-failure', 'needs-attention']        uses: actions/checkout@v4
+
+            });
+      - name: Build Docker image and save logs
+        run: >-
+          set -o pipefail;
+          docker build -t example-service:${{ github.sha }} . 2>&1 | \
+            tee docker.log || rc=$?;
+          rc=${rc:-0};
+          if [ "${{ env.MODE }}" = "compliance" ] && [ "$rc" != "0" ]; then
+            echo "Docker build failed in compliance mode" >&2;
+            exit $rc;
+          fi;
+          if docker images --format '{{.Repository}}:{{.Tag}}' | \
+             grep -q "example-service:${{ github.sha }}"; then
+            docker save example-service:${{ github.sha }} \
+              -o example-service-${{ github.sha }}.tar || true;
+          fi
+
+      - name: Upload docker artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-artifacts
+          path: |
+            docker.log
+            example-service-${{ github.sha }}.tar
+
+  sbom-sign:
+    name: Generate SBOM & Sign
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          pip install cyclonedx-bom || true
+          cyclonedx-py -o sbom.xml || true
+
+      - name: Sign image (cosign placeholder)
+        run: echo "placeholder for cosign signing"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.xml
+
+  sast:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-latest
+    needs: [sbom-sign]
+    continue-on-error: ${{ vars.MODE == 'sandbox' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python, javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  audit:
+    name: Trigger Audit Trail
+    runs-on: ubuntu-latest
+    needs: [sast]
+    steps:
+      - name: Gather artifacts for audit
+        run: >-
+          mkdir -p audit-uploads || true;
+          if [ -d generated-artifacts ]; then
+            cp -r generated-artifacts reports || true;
+          fi
+
+      - name: Vault OIDC Login
+        id: vault
+        uses: hashicorp/vault-action@v2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: jwt
+          namespace: admin
+          role: github-actions
+          jwtGithubAudience: vault
+          secrets: |
+            secret/data/ci/org_gh_token org_gh_token
+
+      - name: Upload audit response
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-response
+          path: audit_response.json
+
+  enforce-compliance:
+    name: Enforce Compliance
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - test
+      - docker-build
+      - sbom-sign
+      - sast
+    if: ${{ vars.MODE == 'compliance' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download generation artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: generation-reports
+          path: ./generated
+
+      - name: Run auditor
+        run: >-
+          set -o pipefail;
+          python3 scripts/audit_compliance.py \
+            --mode compliance \
+            --pr-number "${{ github.event.pull_request.number || 'manual' }}" \
+          name: generation-reports
+            --commit-sha "${{ github.sha }}" \
+            --output ./audit-response.json \
+            --spec-report ./generated/spec-coverage.json \
+            --generated-files ./generated/generated_files.json || true
+
+      - name: Show audit-response.json
+        if: always()
+        run: >-
+          if [ -f ./audit-response.json ]; then
+            echo "==== audit-response.json ====";
+            cat ./audit-response.json;
+            jq -r '"Validator Exit Code: \(.validator_exit_code)
+              Auditor Exit Code: \(.auditor_exit_code)"' \
+              ./audit-response.json 2>/dev/null || true;
+            echo "============================";
+          else
+            echo "No audit-response.json found";
+          fi
+
+      - name: Upload compliance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enforce-compliance-artifacts
+          path: |
+            audit-response.json
+            pytest-results.xml
+            flake8.log
+            docker.log
+            sbom.xml
