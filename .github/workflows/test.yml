@@ -1,0 +1,102 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  test:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+        test-type: ['unit', 'integration', 'contract']
+        include:
+          - test-type: 'unit'
+            test-path: 'tests/unit'
+            test-marks: 'unit'
+          - test-type: 'integration'
+            test-path: 'tests/integration'
+            test-marks: 'integration'
+          - test-type: 'contract'
+            test-path: 'tests/contract'
+            test-marks: 'contract'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      # Validate tokens before usage
+      - name: Validate GitHub token
+        uses: ./.github/workflows/validate-token.yml
+        with:
+          token-type: 'github'
+
+      - name: Log test metadata
+        run: |
+          echo "Start time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Python version: ${{ matrix.python-version }}"
+          echo "Test type: ${{ matrix.test-type }}"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r patch_requirements.txt
+          pip install pytest pytest-cov pytest-github-actions-annotate-failures
+
+      - name: Run tests
+        id: run-tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          TEST_TYPE: ${{ matrix.test-type }}
+          TEST_PATH: ${{ matrix.test-path }}
+          TEST_MARKS: ${{ matrix.test-marks }}
+        run: |
+          pytest ${{ matrix.test-path }} \
+            -v \
+            --junitxml=test-results-${{ matrix.test-type }}.xml \
+            --cov=src \
+            --cov-report=xml:coverage-${{ matrix.test-type }}.xml \
+            --cov-report=html:coverage-html-${{ matrix.test-type }} \
+            -m "${{ matrix.test-marks }}"
+
+      - name: Log completion
+        if: always()
+        run: |
+          echo "Tests completed for ${{ matrix.test-type }}"
+          echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.python-version }}-${{ matrix.test-type }}
+          path: |
+            test-results-${{ matrix.test-type }}.xml
+            coverage-${{ matrix.test-type }}.xml
+            coverage-html-${{ matrix.test-type }}
+          retention-days: 7
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            test-results-${{ matrix.test-type }}.xml
+          check_name: "Test Results - Python ${{ matrix.python-version }} - ${{ matrix.test-type }}"

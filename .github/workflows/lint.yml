@@ -1,0 +1,95 @@
+name: Lint Code
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.11']  # Mandatory matrix, even if single value
+        lint-type: ['python', 'yaml', 'docker']  # Different types of linting
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log job metadata
+        run: |
+          echo "Start time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Python version: ${{ matrix.python-version }}"
+          echo "Lint type: ${{ matrix.lint-type }}"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r patch_requirements.txt
+          pip install pylint black isort yamllint hadolint-py
+
+      - name: Run linting
+        id: lint
+        run: |
+          case "${{ matrix.lint-type }}" in
+            "python")
+              echo "Running Python linting..."
+              pylint src/ tests/ scripts/ || echo "pylint_status=$?" >> $GITHUB_OUTPUT
+              black --check . || echo "black_status=$?" >> $GITHUB_OUTPUT
+              isort --check-only . || echo "isort_status=$?" >> $GITHUB_OUTPUT
+              ;;
+              
+            "yaml")
+              echo "Running YAML linting..."
+              yamllint . || echo "yamllint_status=$?" >> $GITHUB_OUTPUT
+              ;;
+              
+            "docker")
+              echo "Running Dockerfile linting..."
+              hadolint Dockerfile || echo "hadolint_status=$?" >> $GITHUB_OUTPUT
+              ;;
+              
+            *)
+              echo "Unsupported lint type: ${{ matrix.lint-type }}"
+              exit 1
+              ;;
+          esac
+
+      - name: Log completion
+        if: always()
+        run: |
+          echo "Lint completed for ${{ matrix.lint-type }}"
+          echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "Lint exit codes:"
+          echo "pylint: ${{ steps.lint.outputs.pylint_status }}"
+          echo "black: ${{ steps.lint.outputs.black_status }}"
+          echo "isort: ${{ steps.lint.outputs.isort_status }}"
+          echo "yamllint: ${{ steps.lint.outputs.yamllint_status }}"
+          echo "hadolint: ${{ steps.lint.outputs.hadolint_status }}"
+
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-results-${{ matrix.lint-type }}
+          path: |
+            pylint.txt
+            black.txt
+            isort.txt
+            yamllint.txt
+            hadolint.txt
+          retention-days: 7
