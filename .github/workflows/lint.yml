@@ -68,7 +68,7 @@ jobs:
           echo "End time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
       - name: Upload lint results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lint-results-${{ matrix.lint-type }}
           path: |
