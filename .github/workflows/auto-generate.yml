@@ -1,0 +1,115 @@
+name: Auto-Generate Code from Specsname: Auto-Generate Code from Specs
+
+
+
+on:on:
+
+  push:  workflow_run:
+
+    paths:    workflows: ["Validate Specifications"]
+
+      - 'specs/**'    types:
+
+      - 'templates/**'      - completed
+
+      - 'scripts/generate_from_spec.py'
+
+  pull_request:jobs:
+
+    paths:  generate-code:
+
+      - 'specs/**'    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+      - 'templates/**'    runs-on: ubuntu-latest
+
+      - 'scripts/generate_from_spec.py'    steps:
+
+  workflow_dispatch:      - name: Checkout
+
+        uses: actions/checkout@v4
+
+permissions:
+
+  contents: write      - name: Setup Python
+
+  pull-requests: write        uses: actions/setup-python@v5
+
+        with:
+
+jobs:          python-version: '3.11'
+
+  generate:
+
+    name: Generate Code from Specs      - name: Install generator deps
+
+    runs-on: ubuntu-latest        run: |
+
+    strategy:          pip install jinja2
+
+      fail-fast: false
+
+      matrix:      - name: Download spec coverage report
+
+        template-type: ['controller', 'service', 'docs', 'unit_test', 'integration_test']        uses: actions/download-artifact@v4
+
+        python-version: ['3.11']        with:
+
+          name: spec-coverage-report
+
+    steps:          path: reports
+
+    - uses: actions/checkout@v4
+
+
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r patch_requirements.txt
+
+    - name: Generate code from specs
+      id: generate
+      env:
+        TEMPLATE_TYPE: ${{ matrix.template-type }}
+      run: |
+        python scripts/generate_from_spec.py \
+          --template-type $TEMPLATE_TYPE \
+          --output-dir generated/ \
+          --spec-dir specs/
+
+    - name: Create Pull Request
+      if: github.event_name != 'pull_request'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        commit-message: "feat(auto-gen): Update generated code from specs [${{ matrix.template-type }}]"
+        title: "Auto-Generate: Update ${{ matrix.template-type }} code from specs"
+        body: |
+          This PR updates the generated code based on the latest spec changes.
+          
+          Template Type: `${{ matrix.template-type }}`
+          Generated Files: See changes below
+          Generator Version: $(python scripts/generate_from_spec.py --version)
+          
+          Please review the changes carefully.
+        branch: "feat/auto-gen-${{ matrix.template-type }}"
+        base: main
+        draft: false
+        delete-branch: true
+        labels: |
+          auto-generated
+          needs-review
+          ${{ matrix.template-type }}
+
+    - name: Upload Generated Files
+      uses: actions/upload-artifact@v3
+      with:
+        name: generated-${{ matrix.template-type }}
+        path: generated/
+        retention-days: 7

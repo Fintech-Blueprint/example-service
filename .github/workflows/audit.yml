@@ -1,16 +1,27 @@
-name: Audit
+name: Audit and Compliance
 
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight UTC
-  workflow_dispatch:  # Allow manual triggers
+  workflow_run:
+    workflows: ["CI Pipeline", "Auto-Generate Code from Specs", "Validate Specifications"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
 
 jobs:
   audit:
-    name: Compliance and Security Audit
+    name: Security and Compliance Audit
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for audit trail
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -24,10 +35,13 @@ jobs:
         pip install -r requirements.txt
         pip install -r patch_requirements.txt
 
-    - name: Run compliance audit
-      run: python scripts/audit_compliance.py
-      
-    - name: Validate spec coverage
+    - name: Generate audit trail
+      run: |
+        python scripts/audit_compliance.py --generate-trail
+        
+    - name: Validate specification coverage
+      run: |
+        python scripts/validate_spec_coverage.py --threshold 90
       run: python scripts/validate_spec_coverage.py
 
     - name: Resource estimation
