@@ -1,8 +1,8 @@
--   id: workflow-vars-enforced
-    name: Enforce Workflow Variable Naming
-    entry: grep -E -v 'VAULT_ADDR|VAULT_ROLE|ORG_GH_TOKEN|CI_ENV|PYTHON_VERSION|TEST_TYPE' .github/workflows/*.yml | grep -E '\${{ *secrets\.|\${{ *matrix\.|\${{ *env\.'
-    language: system
-    types: [yaml]
-    files: \.github/workflows/.*\.yml$
-    pass_filenames: false
-    description: 'Fail if workflow YAMLs use variables not in workflow-vars.md spec.'
+---
+- id: workflow-vars
+  name: Enforce Workflow Variable Naming
+  entry: python3 scripts/enforce_workflow_vars.py
+  language: system
+  files: \.ya?ml$
+  description: |
+    Fail if workflow YAMLs use variables not in workflow-vars.md spec.
