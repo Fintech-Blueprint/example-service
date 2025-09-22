@@ -1,5 +1,0 @@
-{
-  "cpu": "100m",
-  "memory": "128Mi",
-  "notes": "Stub estimate for ping service"
-}
