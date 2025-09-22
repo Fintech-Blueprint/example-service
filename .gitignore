@@ -17,3 +17,10 @@ dist/
 # Env files
 .env
 audit-response.json
+
+# Ignore generated and CI artifacts
+pr_artifacts/
+generated/
+reports/
+*.pem
+patch_*
