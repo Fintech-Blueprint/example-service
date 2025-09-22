@@ -2,8 +2,23 @@
 name = "example-service"
 version = "0.1.0"
 description = "Example service golden template"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pytest",
+    "httpx",
+    "pydantic",
+    "requests>=2.31.0"
+]
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests"
+]

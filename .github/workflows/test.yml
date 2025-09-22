@@ -26,13 +26,10 @@ jobs:
         test-type: ['unit', 'integration', 'contract']
         include:
           - test-type: 'unit'
-            test-path: 'tests/unit'
             test-marks: 'unit'
           - test-type: 'integration'
-            test-path: 'tests/integration'
             test-marks: 'integration'
           - test-type: 'contract'
-            test-path: 'tests/contract'
             test-marks: 'contract'
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +42,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-github-actions-annotate-failures
+          pip install -e .
       - name: Create reports folder
         run: mkdir -p reports
       - name: Run tests
@@ -52,10 +50,9 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
           TEST_TYPE: ${{ matrix.test-type }}
-          TEST_PATH: ${{ matrix.test-path }}
           TEST_MARKS: ${{ matrix.test-marks }}
         run: |
-          pytest ${{ matrix.test-path }} -v \
+          pytest tests/ -v \
             --junitxml=reports/test-results-${{ matrix.test-type }}.xml \
             --cov=src \
             --cov-report=xml:reports/coverage-${{ matrix.test-type }}.xml \

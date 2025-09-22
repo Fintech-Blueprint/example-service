@@ -1,9 +1,11 @@
+import pytest
 from fastapi.testclient import TestClient
 from src.application.main import app
 
 client = TestClient(app)
 
 
+@pytest.mark.unit
 def test_ping():
     r = client.get('/v1/ping')
     assert r.status_code == 200
