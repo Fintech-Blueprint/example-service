@@ -1,0 +1,279 @@
+name: Spec Implementation
+
+on:
+  pull_request:
+    paths:
+      - 'features/*.feature'
+  workflow_dispatch:
+    inputs:
+      feature_file:
+        description: 'Path to feature file to process'
+        required: true
+
+env:
+  MODE: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') && 'compliance' || 'sandbox' }}
+  ARGOCD_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+  ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+
+jobs:
+  validate-spec:
+    runs-on: ubuntu-latest
+    outputs:
+      feature_sha: ${{ steps.validate.outputs.feature_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Validate specs
+        id: validate
+        run: |
+          python scripts/validate_specs.py
+          FEATURE_SHA=$(jq -r .combined_sha reports/spec-coverage.json)
+          echo "feature_sha=$FEATURE_SHA" >> $GITHUB_OUTPUT
+          
+      - name: Upload spec coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: spec-coverage
+          path: reports/spec-coverage.json
+
+  generate-code:
+    needs: validate-spec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Generate code
+        run: |
+          python scripts/generate_from_spec.py --idempotent
+          
+      - name: Generate resource estimates
+        run: |
+          python scripts/resource_estimator.py
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FEATURE_SHA: ${{ needs.validate-spec.outputs.feature_sha }}
+        run: |
+          BRANCH="auto/spec-implementation/${FEATURE_SHA}"
+          
+          # Create branch if it doesn't exist
+          git checkout -b "$BRANCH" || git checkout "$BRANCH"
+          
+          # Track all new files first
+          git add -N generated/ reports/
+          
+          # Show what would be committed (for logging)
+          echo "Changes to be committed:"
+          git status --porcelain
+          
+          # Ensure no untracked files exist
+          if git status --porcelain | grep '^??'; then
+            echo "Error: Untracked files detected"
+            git status
+            exit 1
+          fi
+          
+          # Stage all changes including newly tracked files
+          git add generated/ reports/
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            # Create commit with detailed message
+            git commit -m "feat(auto): implement spec ${FEATURE_SHA}
+
+            Generated from feature files with SHA: ${FEATURE_SHA}
+            
+            Changes:
+            $(git diff --staged --stat)"
+            
+            # Push changes with retry logic
+            for i in {1..3}; do
+              if git push origin "$BRANCH" --force; then
+                break
+              fi
+              if [ $i -eq 3 ]; then
+                echo "Failed to push after 3 attempts"
+                exit 1
+              fi
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+            done
+          fi
+          
+          # Get existing PR or create new one
+          PR_URL=$(gh pr list --head "$BRANCH" --json url -q '.[0].url')
+          if [ -z "$PR_URL" ]; then
+            gh pr create \
+              --base main \
+              --title "feat(auto): implement spec ${FEATURE_SHA}" \
+              --body "$(cat reports/spec-coverage.json reports/resource-estimates.json)" \
+              --label "automated"
+          else
+            gh pr edit "$PR_URL" \
+              --body "$(cat reports/spec-coverage.json reports/resource-estimates.json)"
+          fi
+
+  deploy-staging:
+    needs: [validate-spec, generate-code]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+          
+      - name: Login to ArgoCD
+        run: |
+          argocd login $ARGOCD_SERVER --token $ARGOCD_TOKEN --insecure
+          
+      - name: Update staging manifests
+        run: |
+          # Ensure staging directory exists
+          mkdir -p staging
+          
+          # Update image tag in staging manifests
+          if [ -f staging/deployment.yaml ]; then
+            sed -i "s/tag:.*/tag: ${{ github.sha }}/" staging/deployment.yaml
+          else
+            echo "Error: staging/deployment.yaml not found"
+            exit 1
+          fi
+          
+          # Show changes before committing
+          echo "Changes to be committed:"
+          git diff staging/
+          
+          # Stage and commit if there are changes
+          git add staging/
+          if git diff --staged --quiet; then
+            echo "No changes to deployment manifest"
+          else
+            git commit -m "chore(staging): update image tag to ${{ github.sha }}
+
+            Update deployment manifest for staging environment
+            SHA: ${{ github.sha }}
+            Feature: ${{ needs.validate-spec.outputs.feature_sha }}"
+            
+            # Push with retry logic
+            for i in {1..3}; do
+              if git push origin HEAD; then
+                break
+              fi
+              if [ $i -eq 3 ]; then
+                echo "Failed to push deployment update after 3 attempts"
+                exit 1
+              fi
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+            done
+          fi
+          
+      - name: Sync and wait
+        id: sync
+        run: |
+          # First attempt
+          if ! timeout 5m argocd app sync staging --async=false; then
+            echo "First sync attempt failed, retrying once..."
+            sleep 30
+            # Second attempt
+            if ! timeout 5m argocd app sync staging --async=false; then
+              echo "::error::Sync failed after retry"
+              exit 1
+            fi
+          fi
+          
+      - name: Smoke test
+        id: smoke
+        run: |
+          # Wait for deployment and run smoke test
+          for i in {1..10}; do
+            if curl -s http://staging.example.com/healthz | jq -e '.status == "ok"' > /dev/null; then
+              echo "Smoke test passed"
+              exit 0
+            fi
+            sleep 3
+          done
+          
+          echo "::error::Smoke test failed after 30s"
+          
+          # Rollback with retry logic
+          if ! git revert --no-edit HEAD; then
+            echo "Error creating revert commit"
+            exit 1
+          fi
+          
+          for i in {1..3}; do
+            if git push origin HEAD; then
+              echo "Successfully pushed rollback"
+              break
+            fi
+            if [ $i -eq 3 ]; then
+              echo "Failed to push rollback after 3 attempts"
+              exit 1
+            fi
+            echo "Push failed, retrying in 5 seconds..."
+            sleep 5
+          done
+          
+          # Create incident PR
+          gh pr create \
+            --base main \
+            --title "incident(staging): smoke test failure for spec ${{ needs.validate-spec.outputs.feature_sha }}" \
+            --body "$(cat .github/INCIDENT_TEMPLATE.md)" \
+            --label "incident,P1"
+            
+          exit 1
+          
+      - name: Update run report
+        if: always()
+        run: |
+          mkdir -p .github/run-reports
+          cat > ".github/run-reports/deploy-smoke-${{ needs.validate-spec.outputs.feature_sha }}.md" << EOL
+          # Deployment Report
+          
+          ## PR Information
+          - Feature SHA: ${{ needs.validate-spec.outputs.feature_sha }}
+          - PR URL: $(gh pr view --json url -q .url)
+          
+          ## CI Status
+          - Spec Validation: ${{ job.steps.validate.outcome }}
+          - Code Generation: ${{ needs.generate-code.result }}
+          - ArgoCD Sync: ${{ steps.sync.outcome }}
+          - Smoke Test: ${{ steps.smoke.outcome }}
+          
+          ## Artifacts
+          - [Spec Coverage](../artifacts/spec-coverage)
+          - [Resource Estimates](../artifacts/resource-estimates)
+          - [Manifest](../artifacts/manifest)
+          
+          ## Logs
+          \`\`\`
+          $(argocd app logs staging)
+          \`\`\`
+          EOL

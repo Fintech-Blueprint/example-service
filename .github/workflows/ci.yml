@@ -1,0 +1,247 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, 'release/*' ]
+  pull_request:
+    branches: [ main, 'release/*' ]
+
+env:
+  DOCKER_IMAGE: fintech-blueprint/example-service
+  COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+  MODE: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') && 'compliance' || 'sandbox' }}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Run linter
+        run: flake8
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
+
+  sbom:
+    runs-on: ubuntu-latest
+    outputs:
+      sbom_path: ${{ steps.generate-sbom.outputs.sbom_path }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate SBOM
+        id: generate-sbom
+        run: |
+          # Install CycloneDX generator
+          pip install cyclonedx-bom
+          
+          # Generate SBOM
+          cyclonedx-bom -r -i requirements.txt -o sbom.json --format json
+          echo "sbom_path=sbom.json" >> $GITHUB_OUTPUT
+          
+      - name: Validate SBOM Format
+        run: |
+          python -c '
+          import json
+          import sys
+          
+          with open("sbom.json") as f:
+              sbom = json.load(f)
+          
+          # Check minimum required fields
+          required = ["bomFormat", "components", "metadata", "dependencies"]
+          missing = [f for f in required if f not in sbom]
+          if missing:
+              print(f"Missing required fields: {missing}")
+              sys.exit(1)
+          
+          # Check file size
+          if len(json.dumps(sbom)) < 100:  # Minimum reasonable size
+              print("SBOM too small - likely invalid")
+              sys.exit(1)
+          '
+      
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: sbom.json
+
+  build-and-sign:
+    needs: [sbom]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Download SBOM
+        uses: actions/download-artifact@v3
+        with:
+          name: sbom
+          
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          outputs: type=docker,dest=/tmp/image.tar
+          
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        
+      - name: Sign artifacts
+        if: env.MODE == 'compliance'
+        env:
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+        run: |
+          # Sign Docker image
+          cosign sign-blob --key env://COSIGN_KEY /tmp/image.tar > /tmp/image.tar.sig
+          
+          # Sign SBOM
+          cosign sign-blob --key env://COSIGN_KEY sbom.json > sbom.json.sig
+          
+          # Verify signatures immediately
+          cosign verify-blob --key $COSIGN_PUBLIC_KEY --signature /tmp/image.tar.sig /tmp/image.tar
+          cosign verify-blob --key $COSIGN_PUBLIC_KEY --signature sbom.json.sig sbom.json
+        
+      - name: Upload signed artifacts
+        if: env.MODE == 'compliance'
+        uses: actions/upload-artifact@v3
+        with:
+          name: signed-artifacts
+          path: |
+            /tmp/image.tar
+            /tmp/image.tar.sig
+            sbom.json
+            sbom.json.sig
+
+  enforce-compliance:
+    needs: [lint, test, sbom, build-and-sign]
+    if: env.MODE == 'compliance'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        
+      - name: Verify compliance
+        env:
+          COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+        run: |
+          # Function to retry verification
+          verify_with_retry() {
+            for i in {1..3}; do
+              if timeout 300s "$@"; then
+                return 0
+              fi
+              echo "Attempt $i failed, retrying..."
+              sleep 5
+            done
+            return 1
+          }
+          
+          # Check SBOM existence and format
+          if [ ! -f "sbom/sbom.json" ] || [ ! -s "sbom/sbom.json" ]; then
+            echo "SBOM missing or empty"
+            exit 1
+          fi
+          
+          # Verify manifest for generated code
+          if [ -f "generated/manifest.json" ]; then
+            if ! verify_with_retry jq . "generated/manifest.json" > /dev/null; then
+              echo "Invalid manifest.json"
+              exit 1
+            fi
+          fi
+          
+          # Verify signatures
+          if ! verify_with_retry cosign verify-blob --key "$COSIGN_PUBLIC_KEY" \
+            --signature signed-artifacts/image.tar.sig signed-artifacts/image.tar; then
+            echo "Image signature verification failed"
+            exit 1
+          fi
+          
+          if ! verify_with_retry cosign verify-blob --key "$COSIGN_PUBLIC_KEY" \
+            --signature signed-artifacts/sbom.json.sig signed-artifacts/sbom.json; then
+            echo "SBOM signature verification failed"
+            exit 1
+          fi
+          
+          # Generate compliance proof
+          cat > reports/compliance-proof.json << EOF
+          {
+            "run_id": "${{ github.run_id }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "sha": "${{ github.sha }}",
+            "ref": "${{ github.ref }}",
+            "verified": {
+              "sbom": true,
+              "image": true,
+              "manifest": true
+            },
+            "artifacts": {
+              "sbom": "sbom/sbom.json",
+              "image": "signed-artifacts/image.tar",
+              "manifest": "generated/manifest.json"
+            }
+          }
+          EOF
+      
+      - name: Upload compliance proof
+        uses: actions/upload-artifact@v3
+        with:
+          name: compliance-proof
+          path: reports/compliance-proof.json
+          
+      - name: Store audit log
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create audit log entry
+          AUDIT_DATE=$(date -u +"%Y/%m/%d")
+          AUDIT_FILE="$AUDIT_DATE/${{ github.run_id }}-audit.json"
+          
+          # Combine all artifacts and proofs
+          cat > audit-payload.json << EOF
+          {
+            "run_id": "${{ github.run_id }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "sha": "${{ github.sha }}",
+            "ref": "${{ github.ref }}",
+            "artifacts": {
+              "sbom": "$(cat sbom/sbom.json)",
+              "compliance_proof": $(cat reports/compliance-proof.json)
+            }
+          }
+          EOF
+          
+          # Create or update audit in dedicated repo
+          gh api -X PUT /repos/Fintech-Blueprint/audit-log/contents/$AUDIT_FILE \
+            -f message="Audit log for run ${{ github.run_id }}" \
+            -f content="$(base64 -w0 audit-payload.json)" \
+            --silent
