@@ -1,0 +1,72 @@
+# GitHub Actions workflow for automated token rotation
+name: Vault Token Rotation
+
+on:
+  schedule:
+    # Run at different times for different roles
+    - cron: '0 0 * * *'  # Daily at midnight UTC for archive-uploader
+    - cron: '0 1 * * *'  # Daily at 1 AM UTC for archive-reader
+    - cron: '0 */4 * * *'  # Every 4 hours for admin
+  workflow_dispatch:
+    inputs:
+      role:
+        description: 'Role to rotate (archive-uploader, archive-reader, admin)'
+        required: true
+        default: 'archive-uploader'
+
+jobs:
+  rotate-token:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Vault CLI
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install vault
+
+      - name: Rotate token
+        env:
+          VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
+          VAULT_NAMESPACE: admin
+          VAULT_TOKEN: ${{ secrets.VAULT_ADMIN_TOKEN }}
+        run: |
+          # Determine role based on current hour if not manually triggered
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            hour=$(date +%H)
+            if [[ $hour == "00" ]]; then
+              ROLE="archive-uploader"
+            elif [[ $hour == "01" ]]; then
+              ROLE="archive-reader"
+            else
+              ROLE="admin"
+            fi
+          else
+            ROLE="${{ github.event.inputs.role }}"
+          fi
+          
+          # Run rotation script
+          ./scripts/vault-rotate-token.sh rotate "$ROLE"
+
+      - name: Update Vault token in GitHub Secrets
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Read the new token
+          TOKEN_FILE="$HOME/.vault-tokens/.vault-token-$ROLE"
+          if [[ -f "$TOKEN_FILE" ]]; then
+            NEW_TOKEN=$(source "$TOKEN_FILE" && echo "$VAULT_TOKEN")
+            
+            # Update GitHub secret
+            echo "$NEW_TOKEN" | gh secret set "VAULT_${ROLE}_TOKEN"
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          gh issue create \
+            --title "⚠️ Vault token rotation failed for $ROLE" \
+            --body "Token rotation failed at $(date -u). Please check the workflow logs and rotate manually if needed." \
+            --label "security,urgent"
