@@ -1,8 +1,8 @@
-# Ping endpoint
+# Ping Endpoint
 
 This feature was generated from BDD specs.
 
-Feature: Ping endpoint
+Feature: Ping Endpoint
 
 Mapping:
 - Core: `src/core/ping_endpoint/service.py`

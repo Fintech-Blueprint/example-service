@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 """Generate hexagonal code, tests, and docs from .feature BDD files using Jinja2 templates.
 
-Usage: python scripts/generate_from_spec.py
+Usage: python scripts/generate_from_spec.py [--idempotent] [--sign]
+
+Options:
+    --idempotent  Only update files if content has changed
+    --sign        Generate manifest.json with checksums and timestamps
 """
+import argparse
+import hashlib
 import json
 import os
+import shutil
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
@@ -62,7 +71,44 @@ def validate_scenarios(scenarios):
     return implemented, issues
 
 
-def render_templates(feature_name, scenarios):
+def compute_spec_sha(feature_files):
+    """Compute combined SHA of all feature files."""
+    hasher = hashlib.sha256()
+    for feature_file in sorted(feature_files):
+        with open(feature_file, 'rb') as f:
+            hasher.update(f.read())
+    return hasher.hexdigest()
+
+def get_file_sha256(filepath):
+    """Compute SHA256 of a file."""
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        hasher.update(f.read())
+    return hasher.hexdigest()
+
+def write_file_atomically(filepath, content, idempotent=False):
+    """Write file atomically and return SHA256 if file was written/changed."""
+    filepath = Path(filepath)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file exists and content is identical
+    if idempotent and filepath.exists():
+        with open(filepath, 'r') as f:
+            if f.read() == content:
+                return None  # File unchanged
+    
+    # Write atomically using temporary file
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, dir=filepath.parent) as tmp:
+        tmp.write(content)
+    
+    shutil.move(tmp.name, filepath)
+    return get_file_sha256(filepath)
+
+def generate_header(spec_sha):
+    """Generate the deterministic header for generated files."""
+    return f"# GENERATED - do not edit\n# generator: generate_from_spec.py\n# spec_sha: {spec_sha}\n\n"
+
+def render_templates(feature_name, scenarios, spec_sha, idempotent=False):
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)), keep_trailing_newline=True)
     slug = slugify(feature_name)
     title = titleize(slug)
@@ -126,10 +172,18 @@ def render_templates(feature_name, scenarios):
 
 
 def run():
+    parser = argparse.ArgumentParser(description='Generate code from BDD specifications')
+    parser.add_argument('--idempotent', action='store_true', help='Only update changed files')
+    parser.add_argument('--sign', action='store_true', help='Generate manifest.json with checksums')
+    args = parser.parse_args()
+
     features = list((ROOT / 'features').rglob('*.feature'))
     if not features:
         print('No feature files found under features/. Create features/*.feature to generate code.')
         return 1
+    
+    # Compute spec SHA from all feature files
+    spec_sha = compute_spec_sha(features)
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     all_generated = []
@@ -153,7 +207,7 @@ def run():
             print(f'Found issues in {f}:', issues)
             continue
 
-        outputs = render_templates(feature_name, scenarios)
+        outputs = render_templates(feature_name, scenarios, spec_sha, args.idempotent)
         all_generated.extend(outputs)
 
     spec_coverage = round((total_impl / total * 100) if total > 0 else 0, 2)
@@ -172,6 +226,25 @@ def run():
 
     with open(REPORTS_DIR / 'generated_files.json', 'w') as fh:
         json.dump(all_generated, fh, indent=2)
+
+    # Generate manifest if requested
+    if args.sign:
+        manifest = {
+            "spec_sha": spec_sha,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "files": {
+                f: {
+                    "sha256": get_file_sha256(f),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "size": os.path.getsize(f)
+                } for f in all_generated
+            }
+        }
+        manifest_path = ROOT / 'generated' / 'manifest.json'
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        print('Manifest written to', manifest_path)
 
     print('Generation complete. Report written to', REPORTS_DIR / 'spec-coverage.json')
     return 0
