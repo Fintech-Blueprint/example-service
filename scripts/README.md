@@ -110,13 +110,58 @@ The script fails gracefully with clear error messages for:
 - Failed GPG verification
 - Write verification failures
 
+## Token Rotation
+
+The `vault-rotate-token.sh` script provides automated token rotation:
+
+```bash
+# First-time setup (creates policy and role)
+./vault-rotate-token.sh --setup
+
+# Environment variables for token rotation
+export VAULT_ADDR="https://your-vault-server:8200"
+export VAULT_NAMESPACE="admin"
+export VAULT_TOKEN="admin-token"      # needs policy creation rights
+export TOKEN_TTL="8h"                # optional, default 8h
+export TOKEN_ROLE="archive-uploader" # optional
+export TOKEN_POLICY="example-service-archive" # optional
+
+# Rotate token
+./vault-rotate-token.sh
+
+# Use new token
+source .vault-token-archive-uploader
+```
+
+Features:
+- Creates required policy and token role
+- Generates new token with appropriate permissions
+- Verifies new token functionality
+- Saves token environment to a protected file
+- Supports custom TTL and role names
+
+The rotation script will:
+1. Create the policy if needed (first time setup)
+2. Create a token role with the specified TTL
+3. Generate a new token bound to that role
+4. Verify the token works
+5. Save credentials to a protected file
+
+Best practice: rotate tokens:
+- On a regular schedule (e.g., daily)
+- After completing major operations
+- If compromise is suspected
+- When team members change
+
 ## Best Practices
 
 1. Always use `--dry-run` first to validate operations
 2. Keep session logs for audit purposes
 3. Use GPG signatures for sensitive archives
-4. Rotate Vault tokens regularly
+4. Rotate Vault tokens regularly using `vault-rotate-token.sh`
 5. Monitor archive sizes and implement retention policies
+6. Use separate tokens for different environments/purposes
+7. Never share tokens across teams or projects
 
 ## Support
 
