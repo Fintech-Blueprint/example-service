@@ -1,15 +1,22 @@
 #!/usr/bin/env bash
+# Enhanced Vault KV v2 archival script with duplicate detection and GPG verification
+# Version: 1.0.0
 set -euo pipefail
 
-# =============================
-# Vault KV v2 Archive Protocol
-# =============================
+# ==============================
+# Configuration and CLI parsing
+# ==============================
+DRY_RUN=0
+if [[ "${1:-}" == "--dry-run" ]]; then
+    DRY_RUN=1
+    shift
+fi
 
-# Configuration and validation
-VAULT_ADDR="${VAULT_ADDR:-https://vault-cluster-public-vault-d81cdec2.2d1e9c46.z1.hashicorp.cloud:8200}"
+ARCHIVE_PATH="${1:-}"
+SESSION_LOG="${2:-session_log.md}"
+VAULT_MOUNT="${VAULT_MOUNT:-secret}"
 VAULT_NAMESPACE="${VAULT_NAMESPACE:-admin}"
-VAULT_TOKEN="${VAULT_TOKEN:?Error: VAULT_TOKEN must be set}"
-KV_MOUNT="secret"
+MAX_ARCHIVE_SIZE_MB=${MAX_ARCHIVE_SIZE_MB:-500}  # Warn if archive > 500MB
 
 # Validate inputs
 if [[ $# -lt 1 ]]; then
