@@ -1,0 +1,55 @@
+name: Enforce Branch Protection
+
+on:
+  pull_request:
+    branches: [ main, 'release/*' ]
+  push:
+    branches: [ main, 'release/*' ]
+
+jobs:
+  enforce-protection:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check branch protection
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get repository info
+          REPO_OWNER=$(echo $GITHUB_REPOSITORY | cut -d/ -f1)
+          REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d/ -f2)
+          
+          # Get branch info
+          BASE_BRANCH=${{ github.base_ref }}
+          
+          # Check branch protection
+          PROTECTION=$(gh api repos/$REPO_OWNER/$REPO_NAME/branches/$BASE_BRANCH/protection \
+            --jq '{
+              required_status_checks: .required_status_checks.checks[].context,
+              required_signatures: .required_signatures.enabled,
+              enforce_admins: .enforce_admins.enabled
+            }')
+          
+          # Verify required checks
+          REQUIRED_CHECKS='["lint","test","sbom","build-and-sign","enforce-compliance"]'
+          CURRENT_CHECKS=$(echo "$PROTECTION" | jq -r '.required_status_checks | join(",")')
+          
+          if [[ ! "$CURRENT_CHECKS" =~ ^(lint|test|sbom|build-and-sign|enforce-compliance)(,(lint|test|sbom|build-and-sign|enforce-compliance))*$ ]]; then
+            echo "Missing required status checks. Found: $CURRENT_CHECKS"
+            exit 1
+          fi
+          
+          # Check signature requirement
+          if [[ "$(echo "$PROTECTION" | jq .required_signatures)" != "true" ]]; then
+            echo "Commit signatures not required"
+            exit 1
+          fi
+          
+          # Check admin enforcement
+          if [[ "$(echo "$PROTECTION" | jq .enforce_admins)" != "true" ]]; then
+            echo "Admin enforcement not enabled"
+            exit 1
+          fi
