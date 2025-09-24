@@ -25,4 +25,15 @@ async def health_check(authorization: Optional[str] = Header(None)):
             "metrics": {
                 "health_up": 1
             }
-    }
+        }
+    except Exception as e:
+        # Set health metric to 0 (unhealthy)
+        health_up.set(0)
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "metrics": {
+                "health_up": 0
+            }
+        }
