@@ -1,7 +1,8 @@
-# Test dependencies
+# Test and code quality dependencies
 pytest>=7.4.0
 pytest-cov>=4.1.0
 flake8>=6.1.0
+radon>=6.0.0
 requests>=2.31.0
 httpx>=0.24.1
 
@@ -13,3 +14,8 @@ pydantic>=2.3.0
 # Build and validation
 build>=1.0.0
 cyclonedx-python>=3.0.0
+
+# Security and compliance tools
+trivy-plugin>=0.5.0
+syft>=1.0.0
+cosign>=2.0.0

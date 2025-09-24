@@ -1,8 +1,8 @@
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-# these owners will be requested for review when someone 
-# opens a pull request.
-*       @Fintech-Blueprint/cto @Fintech-Blueprint/leads
+# Default owners for everything in the repo
+*       @Fintech-Blueprint/cto @Fintech-Blueprint/admins
+
+# Scripts and tooling require dev lead approval
+scripts/      @Fintech-Blueprint/dev-leads
 
 # CI/CD and infrastructure
 .github/**    @Fintech-Blueprint/devops
@@ -13,5 +13,6 @@ Dockerfile    @Fintech-Blueprint/devops
 src/**        @Fintech-Blueprint/engineers
 tests/**      @Fintech-Blueprint/engineers
 
-# Feature specifications
+# Feature specifications and documentation
 features/**   @Fintech-Blueprint/product-owners @Fintech-Blueprint/engineers
+docs/**       @Fintech-Blueprint/technical-writers @Fintech-Blueprint/engineers

@@ -100,6 +100,14 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Sign container image
+      env:
+        DIGEST: ${{ steps.build.outputs.digest }}
+      run: |
+        cosign sign --key env://COSIGN_PRIVATE_KEY "${REGISTRY}/${IMAGE_NAME}@${DIGEST}"
+      env:
+        COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
     
     - name: Scan image
       uses: aquasecurity/trivy-action@master
