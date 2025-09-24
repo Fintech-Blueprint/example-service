@@ -5,6 +5,7 @@ flake8>=6.1.0
 radon>=6.0.0
 requests>=2.31.0
 httpx>=0.24.1
+prometheus-client>=0.17.0  # For health metrics
 
 # Runtime dependencies
 fastapi>=0.103.0

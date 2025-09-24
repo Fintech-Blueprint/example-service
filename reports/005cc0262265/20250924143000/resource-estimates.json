@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-09-24T14:30:00Z",
+  "feature_sha": "005cc0262265",
+  "run_id": "20250924143000",
+  "estimates": {
+    "cpu_usage": {
+      "peak": 0.3,
+      "average": 0.1
+    },
+    "memory_usage": {
+      "peak": 256,
+      "average": 128
+    },
+    "storage_usage": {
+      "total": 15,
+      "data": 10,
+      "logs": 5
+    }
+  },
+  "compliance_status": "within_limits"
+}

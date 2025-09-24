@@ -1,0 +1,36 @@
+{
+  "timestamp": "2025-09-24T14:04:40Z",
+  "feature_sha": "005cc0262265",
+  "run_id": "20250924140440",
+  "estimates": {
+    "cpu_usage": {
+      "peak": 0.3,
+      "average": 0.1,
+      "limit": 0.5
+    },
+    "memory_usage": {
+      "peak": 256,
+      "average": 128,
+      "limit": 512,
+      "unit": "Mi"
+    },
+    "storage_usage": {
+      "total": 15,
+      "data": 10,
+      "logs": 5,
+      "unit": "MB"
+    }
+  },
+  "deployment": {
+    "retry_config": {
+      "attempts": 2,
+      "interval": 120,
+      "rollback": true
+    },
+    "health_check": {
+      "endpoint": "/healthz",
+      "timeout": 30
+    }
+  },
+  "compliance_status": "within_limits"
+}

@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-09-24T14:04:40Z",
+  "feature_sha": "005cc0262265",
+  "run_id": "20250924140440",
+  "validation_results": {
+    "resource_tags": {
+      "cpu": {
+        "valid": true,
+        "value": 0.1,
+        "range": "0.1-16.0",
+        "precision": 3
+      },
+      "memory": {
+        "valid": true,
+        "value": 128,
+        "range": "128-32768",
+        "unit": "MB"
+      },
+      "storage": {
+        "valid": true,
+        "value": 10,
+        "range": "10-100000",
+        "unit": "MB"
+      },
+      "story_points": {
+        "valid": true,
+        "value": 1,
+        "range": "1-20",
+        "type": "integer"
+      }
+    },
+    "mode": "sandbox",
+    "validation_status": "success"
+  }
+}

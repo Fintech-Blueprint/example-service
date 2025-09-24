@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-09-24T14:04:40Z",
+  "feature_sha": "005cc0262265",
+  "run_id": "20250924140440",
+  "artifacts": {
+    "spec_validation": "spec-validation-report.json",
+    "coverage": "spec-coverage.json",
+    "resources": "resource-estimates.json",
+    "sbom": "sbom.cyclonedx.json",
+    "signatures": {
+      "container": "container.sig",
+      "sbom": "sbom.sig"
+    }
+  },
+  "pipeline_status": {
+    "preflight": "completed",
+    "validate": "completed",
+    "generate": "completed",
+    "build": "completed",
+    "deploy": "completed",
+    "audit": "completed"
+  },
+  "security": {
+    "sast_status": "pass",
+    "sbom_signed": true,
+    "container_signed": true
+  },
+  "mode": "sandbox",
+  "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

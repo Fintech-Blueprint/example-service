@@ -3,10 +3,9 @@
     "list": []
   },
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "links": [],
-  "liveNow": false,
+  "id": 1,
+  "title": "Service Health Dashboard",
   "panels": [
     {
       "datasource": {
