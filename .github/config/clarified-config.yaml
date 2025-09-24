@@ -1,0 +1,125 @@
+# Clarified Configuration - September 24, 2025
+
+## Mode-Specific Configurations
+
+### 1. Resource Limits
+```yaml
+sandbox:
+  cpu: 
+    min: 0.1
+    max: 0.5
+  memory:
+    min: 128Mi
+    max: 512Mi
+  enforce: warning_only
+
+compliance:
+  cpu:
+    min: 0.1
+    max: 16.0
+  memory:
+    min: 128Mi
+    max: 32768Mi
+  enforce: strict_block
+```
+
+### 2. Retry Configuration
+```yaml
+global:
+  max_retries: 2
+  interval_seconds: 120
+  report:
+    log_attempts: true
+    include_timestamps: true
+```
+
+### 3. Report Management
+```yaml
+retention:
+  active_runs: 20
+  archive_pattern: "archive/YYYYMMDD"
+  formats:
+    - json_detailed
+    - one_line_summary
+```
+
+### 4. Auto-Fix Rules
+```yaml
+sandbox:
+  enabled: true
+  allowed_fixes:
+    - lint_errors
+    - formatting
+    - whitespace
+    - import_ordering
+  commit_message: "auto-fix: minor issues"
+  block_on:
+    - functional_bugs
+    - failing_tests
+    - security_warnings
+
+compliance:
+  enabled: false
+```
+
+### 5. Branch Conflict Strategy
+```yaml
+sandbox:
+  max_variants: 5
+  naming: "auto/spec-implementation/<sha>-v{1..5}"
+  on_max_reached: log_and_stop
+
+compliance:
+  variants: disabled
+  on_conflict: block_and_notify
+```
+
+### 6. Health Monitoring
+```yaml
+metrics:
+  health_up:
+    healthy: 1
+    unhealthy: 0
+  
+sandbox:
+  collect:
+    - cpu_usage
+    - memory_usage
+    - storage_usage
+  enforce: false
+
+compliance:
+  enforce:
+    - health_up
+    - resource_limits
+  alert_on:
+    - health_up: 0
+    - resource_exceeded: true
+```
+
+### 7. Mode Transition Checklist
+```yaml
+prerequisites:
+  - stable_pilot_metrics
+  - validated_generator
+  - verified_cicd
+
+transition_steps:
+  1. Enable SAST
+  2. Enforce SBOM signing
+  3. Set coverage minimum: 70%
+  4. Apply full resource limits
+  5. Enable manual approvals
+  6. Archive sandbox reports
+```
+
+## Implementation Status
+
+Current Mode: SANDBOX
+Status: Active Pilot
+Next Review: October 1, 2025
+
+---
+Generated: September 24, 2025, 14:04:40 UTC
+Repository: Fintech-Blueprint/example-service
+Branch: auto/spec-implementation/445771e99fbb
