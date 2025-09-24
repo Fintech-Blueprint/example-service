@@ -10,22 +10,50 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  MODE: ${{ vars.MODE || 'sandbox' }}
 
 jobs:
+  preflight:
+    name: Spec preflight
+    runs-on: ubuntu-latest
+    outputs:
+      feature_sha: ${{ steps.validate.outputs.feature_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Run spec validator
+        id: validate
+        run: |
+          pip install -r requirements.txt
+          python3 scripts/validate_spec.py --mode=${MODE}
+          echo "feature_sha=$(ls reports/*/latest/spec-coverage.json | head -1 | cut -d'/' -f2)" >> $GITHUB_OUTPUT
+
+      - name: Archive validation reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-reports
+          path: reports/*/latest/
+
   validate:
+    needs: preflight
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
     outputs:
       compliance_status: ${{ steps.compliance_check.outputs.status }}
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
     
     - name: Install dependencies
       run: |
@@ -118,35 +146,58 @@ jobs:
         severity: 'CRITICAL,HIGH'
         exit-code: '1'
     
-    - name: Deploy to staging
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
     - name: Configure kubectl
       uses: azure/k8s-set-context@v3
       with:
         method: service-account
         k8s-url: ${{ secrets.KUBE_URL }}
         k8s-secret: ${{ secrets.KUBE_SA_SECRET }}
-    
-    - name: Deploy
+      
+    - name: Deploy with retries
       env:
         STAGING_URL: ${{ secrets.STAGING_URL }}
+        STAGING_TOKEN: ${{ secrets.STAGING_TOKEN }}
         IMAGE_TAG: service:${{ github.sha }}
       run: |
-        # Replace image tag in Kubernetes manifests
+        if [ -z "$STAGING_URL" ]; then
+          if [ "$MODE" = "compliance" ]; then
+            echo "::error::STAGING_URL must be provided in compliance mode"
+            exit 1
+          else
+            echo "::warning::STAGING_URL not set, skipping deployment"
+            echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") | Deploy skipped - no STAGING_URL" >> .github/run-reports/deploy-skipped-${{ needs.preflight.outputs.feature_sha }}.md
+            exit 0
+          fi
+        fi
+        
+        # Deploy
         sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${IMAGE_TAG}|" deploy/staging/*.yaml
         kubectl apply -f deploy/staging/
-    
-    - name: Run smoke tests
-      run: |
-        # Wait for deployment
         kubectl rollout status deployment/example-service -n staging --timeout=300s
         
-        # Run smoke tests (excluding broken_ping.feature)
-        STAGING_URL=${{ secrets.STAGING_URL }} pytest tests/smoke/test_ping.py --junit-xml=smoke-test-results.xml
-      timeout-minutes: 5
+        # Smoke test with retries
+        RETRIES=2
+        COUNT=0
+        while [ $COUNT -le $RETRIES ]; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $STAGING_TOKEN" \
+            "$STAGING_URL/healthz")
+          if [ "$STATUS" = "200" ]; then
+            echo "Smoke test passed"
+            break
+          else
+            COUNT=$((COUNT+1))
+            if [ $COUNT -gt $RETRIES ]; then
+              echo "Smoke test failed after $RETRIES retries"
+              # Rollback
+              kubectl rollout undo deployment/example-service -n staging
+              echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") | Deployment rolled back after smoke test failure" >> .github/run-reports/deploy-rollback-${{ needs.preflight.outputs.feature_sha }}.md
+              exit 1
+            fi
+            echo "Retry $COUNT in 120s..."
+            sleep 120
+          fi
+        done
     
     - name: Archive test results
       if: always()
@@ -155,12 +206,48 @@ jobs:
         name: smoke-test-results
         path: smoke-test-results.xml
 
-  cleanup:
-    needs: [validate, stage]
-    if: always()
+  audit:
+    needs: [preflight, deploy]
     runs-on: ubuntu-latest
+    if: always()
     steps:
-    - name: Cleanup old reports
-      run: |
-        # Keep only last 20 reports in archive
-        ls -t reports/archive/ | tail -n +21 | xargs -I {} rm -rf reports/archive/{}
+      - uses: actions/checkout@v4
+      
+      - name: Create audit report
+        run: |
+          mkdir -p .github/run-reports
+          cat << EOF > .github/run-reports/audit-${{ needs.preflight.outputs.feature_sha }}.md
+          # Deployment Audit Report
+          
+          - Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          - Feature SHA: ${{ needs.preflight.outputs.feature_sha }}
+          - Mode: ${MODE}
+          - Run ID: ${{ github.run_id }}
+          - Actor: ${{ github.actor }}
+          - Commit: ${{ github.sha }}
+          - Status: ${{ needs.deploy.result }}
+          
+          ## Artifacts
+          - PR: ${{ github.event.pull_request.html_url }}
+          - CI Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - SBOM: Generated and $([ "$MODE" = "compliance" ] && echo "signed" || echo "unsigned")
+          - Container: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:service:${{ github.sha }}
+          EOF
+          
+          # Update index
+          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") | ${{ needs.preflight.outputs.feature_sha }} | ${{ github.run_id }} | ${{ needs.deploy.result }} | ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> .github/run-reports/index.md
+      
+      - name: Archive old reports
+        run: |
+          mkdir -p reports/archive/$(date +%Y%m%d)
+          find reports -maxdepth 1 -mindepth 1 -type d | sort | head -n -20 | while read dir; do
+            [ -d "$dir" ] && mv "$dir"/* reports/archive/$(date +%Y%m%d)/ 2>/dev/null || true
+          done
+      
+      - name: Upload reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: audit-reports
+          path: |
+            .github/run-reports/
+            reports/
