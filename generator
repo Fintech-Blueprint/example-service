@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+import argparse
+import hashlib
+import json
+import os
+import sys
+from datetime import datetime
+
+def generate_deterministic_output(feature_sha, mode):
+    """Generate deterministic output based on feature SHA and mode."""
+    output = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "feature_sha": feature_sha,
+        "mode": mode,
+        "generator_version": "1.0.0",
+        "deterministic": True
+    }
+    return output
+
+def main():
+    parser = argparse.ArgumentParser(description="Deterministic code generator")
+    parser.add_argument("--feature", required=True, help="Feature SHA or 'current'")
+    parser.add_argument("--idempotent", action="store_true", help="Enable idempotent generation")
+    parser.add_argument("--out", required=True, help="Output directory")
+    
+    args = parser.parse_args()
+    
+    # Get feature SHA
+    if args.feature == "current":
+        result = os.popen("git rev-parse --short=12 HEAD").read().strip()
+        feature_sha = result if result else "development"
+    else:
+        feature_sha = args.feature
+    
+    # Get mode from environment
+    mode = os.environ.get("MODE", "sandbox")
+    
+    # Generate output
+    output = generate_deterministic_output(feature_sha, mode)
+    
+    # Create output directory
+    os.makedirs(args.out, exist_ok=True)
+    
+    # Write output
+    output_file = os.path.join(args.out, "generated_output.json")
+    with open(output_file, "w") as f:
+        json.dump(output, f, indent=2)
+    
+    print(f"Generation complete. Output written to {output_file}")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

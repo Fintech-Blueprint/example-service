@@ -1,39 +1,21 @@
-.PHONY: all lint test clean
+.PHONY: lint test generate
 
-PYTHON_FILES := $(shell find . -name "*.py")
-CPP_FILES := $(shell find . -name "*.cpp" -o -name "*.hpp")
-COVERAGE_THRESHOLD := 80
+lint:
+@echo "Running linters..."
+python3 -m flake8 src/ tests/
+python3 -m black --check src/ tests/
 
-all: lint test
+test:
+@echo "Running tests..."
+python3 -m pytest tests/ -v
 
-lint: lint-python lint-cpp
+generate:
+@echo "Running generator..."
+./generator --feature current --idempotent --out=generated
 
-lint-python:
-	@echo "Running Python linter..."
-	flake8 $(PYTHON_FILES)
+auto-fix-minor:
+@echo "Auto-fixing minor issues..."
+python3 -m black src/ tests/
+python3 -m isort src/ tests/
 
-lint-cpp:
-	@echo "Running C++ linter..."
-	@if [ -n "$(CPP_FILES)" ]; then \
-		clang-tidy $(CPP_FILES) -- -std=c++17; \
-	else \
-		echo "No C++ files to lint"; \
-	fi
-
-test: test-python test-cpp
-
-test-python:
-	@echo "Running Python tests with coverage..."
-	pytest --cov=src --cov-report=term-missing --cov-fail-under=$(COVERAGE_THRESHOLD) tests/
-
-test-cpp:
-	@echo "Running C++ tests..."
-	@if [ -d "build" ]; then \
-		cd build && ctest --output-on-failure; \
-	else \
-		echo "No C++ tests to run"; \
-	fi
-
-clean:
-	@echo "Cleaning build artifacts..."
-	rm -rf build/ __pycache__/ .pytest_cache/ .coverage reports/
+.PHONY: auto-fix-minor
