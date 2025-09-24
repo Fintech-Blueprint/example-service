@@ -1,1 +1,17 @@
-* @org-admins
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# these owners will be requested for review when someone 
+# opens a pull request.
+*       @Fintech-Blueprint/cto @Fintech-Blueprint/leads
+
+# CI/CD and infrastructure
+.github/**    @Fintech-Blueprint/devops
+deploy/**     @Fintech-Blueprint/devops
+Dockerfile    @Fintech-Blueprint/devops
+
+# Core service code
+src/**        @Fintech-Blueprint/engineers
+tests/**      @Fintech-Blueprint/engineers
+
+# Feature specifications
+features/**   @Fintech-Blueprint/product-owners @Fintech-Blueprint/engineers

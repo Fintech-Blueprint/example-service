@@ -1,6 +1,15 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
-pydantic
+# Test dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+flake8>=6.1.0
 requests>=2.31.0
+httpx>=0.24.1
+
+# Runtime dependencies
+fastapi>=0.103.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.3.0
+
+# Build and validation
+build>=1.0.0
+cyclonedx-python>=3.0.0
