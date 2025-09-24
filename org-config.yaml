@@ -1,0 +1,106 @@
+---
+# Organization-level configuration for Golden Goose v1
+version: "1.0.0"
+date: "2025-09-24"
+
+# Global Settings
+org:
+  default_mode: sandbox
+  resource_limits:
+    sandbox:
+      cpu: "0.1-0.5"
+      memory: "128-512Mi"
+    compliance:
+      cpu: "0.1-16.0"
+      memory: "128-32768Mi"
+  
+  # Retention policies
+  retention:
+    active_runs: 20
+    archive_pattern: "archive/YYYYMMDD"
+    monitoring:
+      global: "30d"
+      service_specific: "7d"
+
+# Service Configuration
+services:
+  mode_management:
+    default: sandbox
+    allow_mixed_modes: true
+    auto_switch: false
+    compliance_requirements:
+      - all_dependencies_compliant
+      - lint_passing
+      - tests_passing
+      - sast_passing
+      - signatures_valid
+      - manual_approval
+
+  retry_policy:
+    max_attempts: 2
+    interval_seconds: 120
+    track_success_attempt: true
+
+  security:
+    sandbox:
+      sast: optional
+      vulnerability_scan: optional
+      block_on_failure: false
+    compliance:
+      sast: mandatory
+      vulnerability_scan: mandatory
+      block_on_failure: true
+
+# Monitoring Configuration
+monitoring:
+  global:
+    metrics:
+      - deployment_success
+      - retry_patterns
+      - resource_usage
+    alerts:
+      health_down:
+        condition: "health_up == 0"
+        mode: compliance
+        priority: high
+      resource_usage:
+        condition: "> 90% quota"
+        mode: compliance
+        priority: medium
+      deployment_failures:
+        condition: "> 20% in 24h"
+        mode: compliance
+        priority: high
+
+  service_specific:
+    metrics:
+      - service_health
+      - dependency_health
+
+# Golden Goose Packaging
+golden_goose:
+  versioning:
+    pattern: "v{major}"
+    timestamp_format: "YYYYMMDDHHMMSS"
+  release_criteria:
+    - all_services_compliance_success
+  artifacts:
+    - reports
+    - sbom
+    - manifests
+    - signatures
+    - summary
+  rollback:
+    keep_previous: true
+    symlink: "latest"
+
+# Reporting
+reports:
+  formats:
+    - json
+    - one_line_summary
+  structure:
+    service_level:
+      path: "services/{service}/reports/{feature-sha}/{run-id}"
+    golden_goose:
+      path: "golden-goose/releases/{version}/{timestamp}"
