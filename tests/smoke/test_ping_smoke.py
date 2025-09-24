@@ -22,15 +22,15 @@ def test_healthz_endpoint():
         try:
             response = requests.get(url, timeout=60)
             response.raise_for_status()
+            data = response.json()  # Get JSON immediately after raise_for_status
             
             assert response.status_code == 200
-            assert response.json()['status'] == 'healthy'
+            assert data['status'] == 'healthy'
             break
         except (requests.exceptions.RequestException, AssertionError) as e:
             if attempt == MAX_RETRIES - 1:
                 raise
             time.sleep(RETRY_DELAY)
-            data = response.json()
             assert data['status'] == 'ok'
             return
             
