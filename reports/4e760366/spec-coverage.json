@@ -1,0 +1,42 @@
+{
+  "timestamp": "",
+  "combined_sha": "4e760366",
+  "features": [
+    {
+      "file": "features/ping.feature",
+      "name": "Ping Endpoint",
+      "sha": "d800ff76",
+      "is_valid": false,
+      "scenarios": [
+        {
+          "name": "Service responds to ping",
+          "has_given": true,
+          "has_when": true,
+          "has_then": true,
+          "has_resource_tag": false,
+          "resources": null,
+          "resource_errors": null,
+          "line_number": 7
+        }
+      ]
+    },
+    {
+      "file": "features/broken_ping.feature",
+      "name": "Broken Ping Service",
+      "sha": "1f5a4ec9",
+      "is_valid": false,
+      "scenarios": [
+        {
+          "name": "Broken ping",
+          "has_given": true,
+          "has_when": true,
+          "has_then": true,
+          "has_resource_tag": false,
+          "resources": null,
+          "resource_errors": null,
+          "line_number": 4
+        }
+      ]
+    }
+  ]
+}

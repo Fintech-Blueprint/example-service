@@ -1,0 +1,56 @@
+{
+  "spec_sha": "968c667f223c6f3e896ae25f1a269d6cbf1243703930631bce02f5566b23f51e",
+  "timestamp": "2025-09-24T00:03:52.498707+00:00",
+  "files": {
+    "/workspaces/example-service/src/core/ping_endpoint/service.py": {
+      "sha256": "b789603bb2aa8edfcc3767a2bfa62fdb54ca715bee8cc8c5d3c23c2b0d386184",
+      "timestamp": "2025-09-24T00:03:52.498765+00:00",
+      "size": 77
+    },
+    "/workspaces/example-service/src/adapters/http/ping_endpoint_controller.py": {
+      "sha256": "1fbb5d29f64f3ba81162a840aad46f5cd2f08ad3947edf03f8cec450407062ac",
+      "timestamp": "2025-09-24T00:03:52.498802+00:00",
+      "size": 243
+    },
+    "/workspaces/example-service/tests/unit/test_ping_endpoint_service.py": {
+      "sha256": "0c958ee3970c731c1b229f03502e28e322febd5f4455e66d8736f3e6959cef50",
+      "timestamp": "2025-09-24T00:03:52.498830+00:00",
+      "size": 177
+    },
+    "/workspaces/example-service/tests/integration/test_ping_endpoint_endpoint.py": {
+      "sha256": "18a3a37d2bf6eb1f1d90d89a96ec9475c7f669c32ada0411854ca9e440121297",
+      "timestamp": "2025-09-24T00:03:52.498856+00:00",
+      "size": 261
+    },
+    "/workspaces/example-service/docs/ping_endpoint.md": {
+      "sha256": "ebac9fd897eb3595c08fbf8dcf9091c1866343d705e85e83627e63eb55f82de3",
+      "timestamp": "2025-09-24T00:03:52.498881+00:00",
+      "size": 319
+    },
+    "/workspaces/example-service/src/core/broken_ping_service/service.py": {
+      "sha256": "e00354fda5fb3e3b4aed9363c0f86595bbca98c55346c23232cb509a506ccad6",
+      "timestamp": "2025-09-24T00:03:52.498906+00:00",
+      "size": 82
+    },
+    "/workspaces/example-service/src/adapters/http/broken_ping_service_controller.py": {
+      "sha256": "af7533cf408a62137240e9ce8fbf1e7a0811687900c779c35b5d18814fb790fa",
+      "timestamp": "2025-09-24T00:03:52.498929+00:00",
+      "size": 271
+    },
+    "/workspaces/example-service/tests/unit/test_broken_ping_service_service.py": {
+      "sha256": "cef29a1240a978f8726b80a9807c180b1d82787c66c93e92b8b315c5256b09ea",
+      "timestamp": "2025-09-24T00:03:52.498953+00:00",
+      "size": 198
+    },
+    "/workspaces/example-service/tests/integration/test_broken_ping_service_endpoint.py": {
+      "sha256": "45fc9c01bb3b77c747ec5d5ba79f382260eace4d45d9376964600449291bd665",
+      "timestamp": "2025-09-24T00:03:52.498978+00:00",
+      "size": 267
+    },
+    "/workspaces/example-service/docs/broken_ping_service.md": {
+      "sha256": "ecc0fd6d1f4d7a2a8b1f3dce9fc9d72ef434b7f4437b12e57ceb9cdd589189ca",
+      "timestamp": "2025-09-24T00:03:52.499002+00:00",
+      "size": 355
+    }
+  }
+}

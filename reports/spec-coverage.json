@@ -1,0 +1,18 @@
+{
+  "spec_coverage": 100.0,
+  "total_scenarios": 2,
+  "implemented_scenarios": 2,
+  "errors": [],
+  "generated_files": [
+    "/workspaces/example-service/src/core/ping_endpoint/service.py",
+    "/workspaces/example-service/src/adapters/http/ping_endpoint_controller.py",
+    "/workspaces/example-service/tests/unit/test_ping_endpoint_service.py",
+    "/workspaces/example-service/tests/integration/test_ping_endpoint_endpoint.py",
+    "/workspaces/example-service/docs/ping_endpoint.md",
+    "/workspaces/example-service/src/core/broken_ping_service/service.py",
+    "/workspaces/example-service/src/adapters/http/broken_ping_service_controller.py",
+    "/workspaces/example-service/tests/unit/test_broken_ping_service_service.py",
+    "/workspaces/example-service/tests/integration/test_broken_ping_service_endpoint.py",
+    "/workspaces/example-service/docs/broken_ping_service.md"
+  ]
+}

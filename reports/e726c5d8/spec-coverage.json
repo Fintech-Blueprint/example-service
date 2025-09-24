@@ -1,0 +1,67 @@
+{
+  "timestamp": "",
+  "combined_sha": "e726c5d8",
+  "features": [
+    {
+      "file": "features/ping.feature",
+      "name": "Ping Endpoint",
+      "sha": "3a66a28b",
+      "is_valid": true,
+      "scenarios": [
+        {
+          "name": "Service responds to ping",
+          "has_given": true,
+          "has_when": true,
+          "has_then": true,
+          "has_resource_tag": true,
+          "resources": {
+            "cpu": 0.1,
+            "memory": 128,
+            "storage": 10,
+            "story_points": 1
+          },
+          "resource_errors": [],
+          "line_number": 6
+        },
+        {
+          "name": "Service responds to ping",
+          "has_given": true,
+          "has_when": true,
+          "has_then": true,
+          "has_resource_tag": true,
+          "resources": {
+            "cpu": 0.1,
+            "memory": 128,
+            "storage": 10,
+            "story_points": 1
+          },
+          "resource_errors": [],
+          "line_number": 19
+        }
+      ]
+    },
+    {
+      "file": "features/broken_ping.feature",
+      "name": "Broken Ping Service",
+      "sha": "2ee356bb",
+      "is_valid": true,
+      "scenarios": [
+        {
+          "name": "Broken ping",
+          "has_given": true,
+          "has_when": true,
+          "has_then": true,
+          "has_resource_tag": true,
+          "resources": {
+            "cpu": 0.1,
+            "memory": 128,
+            "storage": 10,
+            "story_points": 1
+          },
+          "resource_errors": [],
+          "line_number": 6
+        }
+      ]
+    }
+  ]
+}
