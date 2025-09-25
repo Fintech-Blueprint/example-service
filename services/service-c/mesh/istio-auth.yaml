@@ -1,0 +1,33 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: service-c-mtls
+  namespace: service-c
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: service-c-policy
+  namespace: service-c
+spec:
+  selector:
+    matchLabels:
+      app: service-c
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/orchestrator/sa/orchestrator"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/metrics", "/healthz"]
+    - from:
+        - source:
+            principals: ["cluster.local/ns/service-a/sa/service-a", "cluster.local/ns/service-b/sa/service-b"]
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/api/*"]
