@@ -74,3 +74,7 @@
 - 2025-09-25 14:30 UTC: Initial evidence chain creation
 - 2025-09-25 14:35 UTC: Merged sprint2-impl
 - 2025-09-25 14:40 UTC: Added Vault policies
+- 2025-09-25 15:00 UTC: Service mesh validation attempted
+  - Status: Environment setup needed
+  - Action: Documented need for K8s cluster configuration
+  - Impact: Non-blocking for mesh configuration validation
