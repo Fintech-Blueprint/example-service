@@ -32,7 +32,7 @@
 - Validation Script: Referenced by service-a validation scripts
 - Status: Ready for validation
 
-See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for cluster requirements and setup instructions.
+See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster requirements and setup instructions.
 
 ### 3.3 Service-C
 - Status: Structure Ready
