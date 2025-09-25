@@ -21,14 +21,18 @@
 
 ## 3. Service Mesh Status
 ### 3.1 Service-A
-- mTLS: STRICT
-- RBAC: Enforced
-- Status: Active/POC
+- mTLS: PENDING – awaiting cluster setup
+- RBAC: PENDING – awaiting cluster setup
+- Validation Script: `./tests/mesh/check-mtls.sh`, `./tests/mesh/check-rbac.sh`
+- Status: Ready for validation
 
 ### 3.2 Service-B
-- mTLS: STRICT
-- RBAC: Enforced
-- Status: Active/POC
+- mTLS: PENDING – awaiting cluster setup
+- RBAC: PENDING – awaiting cluster setup
+- Validation Script: Referenced by service-a validation scripts
+- Status: Ready for validation
+
+See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for cluster requirements and setup instructions.
 
 ### 3.3 Service-C
 - Status: Structure Ready
@@ -78,3 +82,7 @@
   - Status: Environment setup needed
   - Action: Documented need for K8s cluster configuration
   - Impact: Non-blocking for mesh configuration validation
+- 2025-09-25 16:30 UTC: Added validation scripts and updated status
+  - Status: Scripts ready, environment pending
+  - Action: Created validation scripts in tests/mesh/
+  - Impact: Ready for execution once cluster is available
