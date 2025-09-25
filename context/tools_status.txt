@@ -1,0 +1,4 @@
+Tool Versions:
+Vault: Vault v1.20.4 (55bd8f18c6c84aa89fdede4850a622c57f03bd7e), built 2025-09-23T13:22:38Z
+GitHub CLI: gh version 2.75.0 (2025-07-09)
+https://github.com/cli/cli/releases/tag/v2.75.0

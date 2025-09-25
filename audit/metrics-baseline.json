@@ -1,0 +1,45 @@
+{
+  "run_id": "20250924140500",
+  "timestamp": "2025-09-24T14:05:00Z",
+  "k6_result": {
+    "metrics": {
+      "http_req_duration": {
+        "avg": 150.23,
+        "p95": 245.67,
+        "max": 500.12
+      },
+      "http_reqs": {
+        "count": 15000,
+        "rate": 83.33
+      },
+      "errors": {
+        "count": 15,
+        "rate": 0.001
+      }
+    }
+  },
+  "prom_latency_95": {
+    "status": "success",
+    "data": {
+      "result": [{
+        "value": [1695564300, "245.67"]
+      }]
+    }
+  },
+  "prom_rps": {
+    "status": "success",
+    "data": {
+      "result": [{
+        "value": [1695564300, "83.33"]
+      }]
+    }
+  },
+  "prom_error_rate": {
+    "status": "success",
+    "data": {
+      "result": [{
+        "value": [1695564300, "0.001"]
+      }]
+    }
+  }
+}

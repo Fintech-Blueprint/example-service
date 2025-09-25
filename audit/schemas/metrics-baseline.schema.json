@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["run_id", "timestamp", "k6_result", "prom_latency_95", "prom_rps", "prom_error_rate"],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "k6_result": {
+      "type": "object"
+    },
+    "prom_latency_95": {
+      "type": "object"
+    },
+    "prom_rps": {
+      "type": "object"
+    },
+    "prom_error_rate": {
+      "type": "object"
+    }
+  }
+}

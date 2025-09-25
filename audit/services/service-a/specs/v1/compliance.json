@@ -1,0 +1,24 @@
+{
+  "service": "service-a",
+  "version": "1.0.0",
+  "compliance_status": {
+    "mode": "sandbox",
+    "phase": "poc",
+    "provisional_flags": {
+      "service_mesh": "pending",
+      "worm_storage": "pending"
+    }
+  },
+  "requirements": {
+    "sprint1": {
+      "hash_chain": "required",
+      "worm_storage": "optional",
+      "service_mesh": "deferred"
+    }
+  },
+  "evidence_types": [
+    "sast",
+    "tests",
+    "metrics"
+  ]
+}

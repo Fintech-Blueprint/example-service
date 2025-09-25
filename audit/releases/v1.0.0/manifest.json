@@ -1,0 +1,27 @@
+{
+  "release": "v1.0.0",
+  "timestamp": "2025-09-24T14:20:00Z",
+  "manifests": {
+    "deployment": "generated/manifest.json",
+    "service": "generated/service.yaml",
+    "configmap": "generated/configmap.yaml"
+  },
+  "dashboards": [
+    "grafana-dashboards/service-dashboard.json",
+    "grafana-dashboards/alerts-dashboard.json",
+    "grafana-dashboards/load-test-dashboard.json"
+  ],
+  "evidence": {
+    "baseline": "audit/metrics-baseline.json",
+    "rollback": "audit/drills/20250924140500/rollback-validation-20250924140500.json",
+    "secret_rotation": "audit/drills/20250924140500/secret-rotation-20250924140500.json",
+    "sast": "audit/drills/20250924140500/sast-report.json",
+    "sbom": "generated/sbom.json"
+  },
+  "checksums": {
+    "manifest.json": "sha256:abc123...",
+    "metrics-baseline.json": "sha256:def456...",
+    "rollback-validation-20250924140500.json": "sha256:ghi789...",
+    "secret-rotation-20250924140500.json": "sha256:jkl012..."
+  }
+}
