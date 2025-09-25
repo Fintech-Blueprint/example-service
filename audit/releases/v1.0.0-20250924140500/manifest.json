@@ -1,0 +1,23 @@
+{
+  "release": "v1.0.0-20250924140500",
+  "timestamp": "2025-09-24T14:05:00Z",
+  "manifests": {
+    "deployment": "generated/manifest.json",
+    "service": "generated/service.yaml",
+    "configmap": "generated/configmap.yaml"
+  },
+  "dashboards": [
+    "grafana-dashboards/service-dashboard.json",
+    "grafana-dashboards/alerts-dashboard.json",
+    "grafana-dashboards/load-test-dashboard.json"
+  ],
+  "evidence": {
+    "baseline": "audit/metrics-baseline.json",
+    "sast": "audit/drills/20250924140500/sast-report.json",
+    "sbom": "generated/sbom.json"
+  },
+  "checksums": {
+    "manifest.json": "sha256:abc123...",
+    "metrics-baseline.json": "sha256:def456..."
+  }
+}

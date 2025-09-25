@@ -1,0 +1,17 @@
+releases:
+  path: golden-goose/releases
+  include:
+    - reports/**
+    - audit/**
+    - grafana-dashboards/**
+    - sbom/**
+snapshots:
+  signing: true
+  retention: 3y
+  format:
+    - sbom
+    - test-evidence
+    - compliance-status
+    - grafana-dashboards
+references:
+  secrets: vault://secret/
