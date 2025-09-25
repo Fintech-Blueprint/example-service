@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: service-a-monitor
+  namespace: service-a-poc
+  labels:
+    phase: poc
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: service-a
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
