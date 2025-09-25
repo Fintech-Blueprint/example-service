@@ -73,7 +73,9 @@
 - File-based hashing
 - Manual retention
 
-### 3.2 AWS Migration
+### 3.2 Storage Migration Strategy
+
+#### Primary Implementation (AWS S3)
 1. Infrastructure
    - S3 with Object Lock
    - KMS integration
@@ -96,6 +98,53 @@
      backup: local-disk
      encryption: AWS-KMS
    ```
+
+#### Fallback Implementation (OVH Object Storage)
+1. Infrastructure
+   - OVH Public Cloud Object Storage
+   - OpenStack Swift API
+   - Versioning enabled
+   - Custom retention policies
+
+2. Fallback Phases
+   ```mermaid
+   graph TD
+     A[AWS Unavailable] -->|Phase 1| B[OVH Setup]
+     B -->|Phase 2| C[Data Migration]
+     C -->|Phase 3| D[Switch Traffic]
+   ```
+
+3. Components
+   ```yaml
+   storage:
+     primary: OVH-SWIFT
+     mode: WORM-COMPATIBLE
+     retention: 7 years
+     backup: aws-sync
+     encryption: vault-transit
+   ```
+
+4. Compatibility Layer
+   ```python
+   class WORMStorage:
+       def __init__(self, provider):
+           self.provider = provider  # AWS or OVH
+           
+       async def store_evidence(self, data):
+           if self.provider == "aws":
+               return await self._store_aws_s3(data)
+           return await self._store_ovh_swift(data)
+           
+       async def verify_retention(self):
+           # Common verification interface
+           pass
+   ```
+
+5. Transition Strategy
+   - Zero-downtime switch between providers
+   - Automatic evidence chain validation
+   - Dual-write during transition
+   - Fallback verification tests
 
 ### 3.3 Success Criteria
 - [ ] WORM compliance verified
