@@ -86,3 +86,9 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
   - Status: Scripts ready, environment pending
   - Action: Created validation scripts in tests/mesh/
   - Impact: Ready for execution once cluster is available
+- 2025-09-26 00:39:45 UTC: Executed validation suite
+  - Status: Partial success
+  - Action: Ran bootstrap and validation scripts
+  - Impact: Cluster created, Istio core installed, ingress pending
+  - Evidence: Located in evidence/bootstrap.log and evidence/validation/*
+  - Checksums: Recorded in evidence/checksums.txt
