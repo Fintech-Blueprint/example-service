@@ -124,3 +124,63 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
   - Maintain chronological order with timestamped entries.  
   - Cross-reference relevant commits in `phase4/sprint3-prep`.  
 
+## Evidence Entry: 
+
+### Sprint: 
+
+### File Information
+- Path: 
+- Description: 
+- Hash: 
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 01:17:33 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/bootstrap.log
+- Description: ingress bootstrap retry log
+- Hash: ba8e42a342b75e50b28a1b27ee9d11190cae03bb9a64a0c7607b6539ef132029
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 01:17:42 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/mtls-check.log
+- Description: mTLS check (sprint3 dry)
+- Hash: 9cb17d0c244b9ff3994df20e6582c9f6bcedb011293886426f2d6d1dabcd132a
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+

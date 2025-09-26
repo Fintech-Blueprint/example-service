@@ -65,7 +65,14 @@ if kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
 fi
 
 log_info "Creating Kind cluster ${CLUSTER_NAME}..."
-kind create cluster --name "${CLUSTER_NAME}" --config="${CONFIG_DIR}/kind-config.yaml"
+# Use sprint-specific kind config if present
+KIND_CONFIG="${CONFIG_DIR}/kind-config-${SPRINT}.yaml"
+if [ -f "$KIND_CONFIG" ]; then
+    log_info "Using kind config: $KIND_CONFIG"
+    kind create cluster --name "${CLUSTER_NAME}" --config="$KIND_CONFIG"
+else
+    kind create cluster --name "${CLUSTER_NAME}" --config="${CONFIG_DIR}/kind-config.yaml"
+fi
 
 log_info "Waiting for cluster to be ready..."
 kubectl cluster-info --context "kind-${CLUSTER_NAME}"

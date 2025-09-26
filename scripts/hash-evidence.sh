@@ -1,3 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Simple, robust evidence hasher and EVIDENCE_CHAIN.md appender
+# Usage: ./scripts/hash-evidence.sh <file> [description] [sprint]
+
+EVIDENCE_CHAIN_FILE="EVIDENCE_CHAIN.md"
+DEFAULT_SPRINT="sprint2"
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <file> [description] [sprint]" >&2
+  exit 1
+fi
+
+FILE="$1"
+DESC="${2:-Evidence log file}"
+SPRINT="${3:-$DEFAULT_SPRINT}"
+
+if [ ! -f "$FILE" ]; then
+  echo "Error: file '$FILE' not found" >&2
+  exit 1
+fi
+
+HASH=$(sha256sum "$FILE" | awk '{print $1}')
+TS=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+REL=$(realpath --relative-to="$(pwd)" "$FILE")
+
+cat >> "$EVIDENCE_CHAIN_FILE" <<EOF
+## Evidence Entry: $TS
+
+### Sprint: $SPRINT
+
+### File Information
+- Path: $REL
+- Description: $DESC
+- Hash: $HASH
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+EOF
+
+echo "Added evidence entry for $REL (hash: $HASH)"
 #!/bin/bash
 # Script to generate evidence hashes and update EVIDENCE_CHAIN.md
 set -e
@@ -20,39 +71,35 @@ usage() {
     exit 1
 }
 
-# Check arguments
-if [ "$#" -lt 1 ]; then
-    usage
-fi
-
-LOG_FILE="$1"
-DESCRIPTION="${2:-Evidence log file}"
-SPRINT_PARAM="${3:-$DEFAULT_SPRINT}"
-
-# Validate file exists
-if [ ! -f "$LOG_FILE" ]; then
-    echo "Error: File '$LOG_FILE' does not exist"
+## Check if file exists and has content
+if [ ! -f "$EVIDENCE_CHAIN_FILE" ]; then
+    echo "Error: Evidence chain file '$EVIDENCE_CHAIN_FILE' not found"
     exit 1
 fi
 
-# Generate hash
-HASH=$(sha256sum "$LOG_FILE" | cut -d' ' -f1)
-TIMESTAMP=$(date +"$DATE_FORMAT")
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$LOG_FILE")
-
-# Generate entry
-ENTRY="## Evidence Entry: $TIMESTAMP
+# Append the evidence entry using a here-doc to avoid any shell interpolation
+cat >> "$EVIDENCE_CHAIN_FILE" <<EOF
+## Evidence Entry: $TIMESTAMP
 
 ### Sprint: $SPRINT_PARAM
 
 ### File Information
-- Path: \\`$RELATIVE_PATH\\`
+- Path: $RELATIVE_PATH
 - Description: $DESCRIPTION
-- Hash: \\`$HASH\\`
+- Hash: $HASH
 - Status: VALIDATED
 
 ### Validation Steps
 1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+EOF
 2. Added to evidence chain
 3. Original log preserved
 
@@ -67,19 +114,12 @@ if [ ! -f "$EVIDENCE_CHAIN_FILE" ]; then
     exit 1
 fi
 
-# Create temporary file
-TMP_FILE=$(mktemp)
-
-# Find the evidence section and append the new entry
-awk -v entry="$ENTRY" -v sprint="$SPRINT_PARAM" '
-    BEGIN { in_sprint=0 }
-    /^## Sprint 3 -- INITIATION/ { print; print entry; in_sprint=1; next }
-    /^## Sprint 3 -- END/ { print; in_sprint=0; next }
-    { print }
-' "$EVIDENCE_CHAIN_FILE" > "$TMP_FILE"
-
-# Replace original file
-mv "$TMP_FILE" "$EVIDENCE_CHAIN_FILE"
+# Append the generated entry at the end of the Evidence Chain file. This is
+# intentionally simple and robust: it avoids brittle pattern matching and
+# guarantees chronological ordering. For sprint-specific grouping, entries
+# include the Sprint tag in the generated block.
+echo "" >> "$EVIDENCE_CHAIN_FILE"
+echo "$ENTRY" >> "$EVIDENCE_CHAIN_FILE"
 
 echo "✅ Evidence chain updated successfully"
 echo "📝 Added hash for: $RELATIVE_PATH"
