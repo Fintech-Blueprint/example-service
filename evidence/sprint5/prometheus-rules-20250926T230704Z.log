@@ -1,0 +1,2 @@
+error: resource mapping not found for name: "service-b-alerts" namespace: "monitoring" from "sprint5/04-alerts/prometheus-rules.yaml": no matches for kind "PrometheusRule" in version "monitoring.coreos.com/v1"
+ensure CRDs are installed first
