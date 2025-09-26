@@ -34,7 +34,7 @@ spec:
         host: service-b
         subset: v2
       weight: 10
-  retries:
-    attempts: 3
-    perTryTimeout: 2s
-    retryOn: gateway-error,connect-failure,refused-stream,5xx
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream,5xx
