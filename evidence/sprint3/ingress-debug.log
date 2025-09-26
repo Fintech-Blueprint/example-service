@@ -1,0 +1,7 @@
+[0;32m[INFO][0m Checking prerequisites...
+No kind clusters found.
+[0;32m[INFO][0m Creating Kind cluster sprint3-cluster...
+ERROR: failed to create cluster: unable to decode config: yaml: unmarshal errors:
+  line 19: field resources not found in type v1alpha4.Node
+  line 27: field resources not found in type v1alpha4.Node
+  line 35: field resources not found in type v1alpha4.Node
