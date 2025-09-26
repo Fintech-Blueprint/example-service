@@ -1,99 +1,100 @@
+---
 # Organization Configuration
 
 # Service Dependencies and Relationships
 services:
-  service-a:
-    mode: sandbox
-    depends_on: []
-  service-b:
-    mode: sandbox
-    depends_on:
-      - service-a
-  service-c:
-    mode: sandbox
-    depends_on:
-      - service-a
-      - service-b
+    service-a:
+      mode: sandbox
+      depends_on: []
+    service-b:
+      mode: sandbox
+      depends_on:
+        - service-a
+    service-c:
+      mode: sandbox
+      depends_on:
+        - service-a
+        - service-b
 
 rules:
-  compliance_promotion:
-    requires:
-      - all_dependencies_compliant
-      - sast_clean
-      - load_test_pass
-      - secret_rotation_verified
+    compliance_promotion:
+      requires:
+        - all_dependencies_compliant
+        - sast_clean
+        - load_test_pass
+        - secret_rotation_verified
 
 # Global Monitoring Configuration
 monitoring:
-  # Performance thresholds
-  latency_threshold_ms: 250
-  error_rate_threshold: 0.01
-  
-  # Resource thresholds
-  cpu_threshold: 80
-  memory_threshold: 75
-  storage_threshold: 90
-  
-  # Health check configuration
-  health_check:
-    path: /health
-    interval: 30s
-    timeout: 5s
-    success_threshold: 1
-    failure_threshold: 3
+    # Performance thresholds
+    latency_threshold_ms: 250
+    error_rate_threshold: 0.01
+    
+    # Resource thresholds
+    cpu_threshold: 80
+    memory_threshold: 75
+    storage_threshold: 90
+    
+    # Health check configuration
+    health_check:
+      path: /health
+      interval: 30s
+      timeout: 5s
+      success_threshold: 1
+      failure_threshold: 3
 
 # Promotion and Release Configuration
 promotion:
-  # Maximum time to wait for dependent services
-  dependency_wait_limit: 24h
-  
-  # Compliance requirements
-  compliance_gates:
-    - name: "sast"
-      blocking: true
-      severity_threshold: "high"
+    # Maximum time to wait for dependent services
+    dependency_wait_limit: 24h
     
-    - name: "sbom"
-      blocking: true
-      max_critical: 0
-      max_high: 0
-    
-    - name: "load-test"
-      blocking: true
-      max_latency_ms: 250
-      max_error_rate: 0.01
-    
-    - name: "signature"
-      blocking: true
-      required_signers: ["security-team"]
+    # Compliance requirements
+    compliance_gates:
+      - name: "sast"
+        blocking: true
+        severity_threshold: "high"
+      
+      - name: "sbom"
+        blocking: true
+        max_critical: 0
+        max_high: 0
+      
+      - name: "load-test"
+        blocking: true
+        max_latency_ms: 250
+        max_error_rate: 0.01
+      
+      - name: "signature"
+        blocking: true
+        required_signers: ["security-team"]
 
-  # Mode transition rules
-  mode_transitions:
-    sandbox_to_compliance:
-      required_approvals: 1
-      required_teams: ["security"]
-    
-    compliance_to_production:
-      required_approvals: 2
-      required_teams: ["security", "ops"]
+    # Mode transition rules
+    mode_transitions:
+      sandbox_to_compliance:
+        required_approvals: 1
+        required_teams: ["security"]
+      
+      compliance_to_production:
+        required_approvals: 2
+        required_teams: ["security", "ops"]
 
 # Audit Configuration
 audit:
-  retention_period: "3y"
-  required_evidence:
-    - sast_results
-    - test_reports
-    - load_test_results
-    - sbom_reports
-    - compliance_approvals
-    - secret_rotation_logs
+    retention_period: "3y"
+    required_evidence:
+      - sast_results
+      - test_reports
+      - load_test_results
+      - sbom_reports
+      - compliance_approvals
+      - secret_rotation_logs
 
 # Golden Goose Configuration
 golden_goose:
-  snapshot_signing: true
-  snapshot_retention: "3y"
-  required_artifacts:
-    - sbom
-    - test_evidence
-    - compliance_status
-    - grafana_dashboards
+    snapshot_signing: true
+    snapshot_retention: "3y"
+    required_artifacts:
+      - sbom
+      - test_evidence
+      - compliance_status
+      - grafana_dashboards

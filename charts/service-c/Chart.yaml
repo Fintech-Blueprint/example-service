@@ -1,3 +1,4 @@
+---
 apiVersion: v2
 name: service-c
 description: "Service-C Helm chart skeleton (Sprint 3)"

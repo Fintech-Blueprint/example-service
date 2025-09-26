@@ -1,17 +1,18 @@
+---
 # WORM storage configuration (draft)
 # Draft flag: true
 
 apiVersion: v1
 kind: WORMConfiguration
 metadata:
-  name: golden-goose-worm
+    name: golden-goose-worm
 spec:
-  provider: aws-s3
-  bucket: golden-goose-releases
-  objectLock:
-    enabled: true
-    mode: GOVERNANCE
-    retentionDays: 1095
+    provider: aws-s3
+    bucket: golden-goose-releases
+    objectLock:
+      enabled: true
+      mode: GOVERNANCE
+      retentionDays: 1095
 
 # Notes:
 # - This is a draft configuration. Do not apply until Sprint 3 validation.

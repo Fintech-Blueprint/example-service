@@ -1,29 +1,30 @@
+---
 server:
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: "1"
-      memory: 2Gi
-  persistentVolume:
-    enabled: false
-    size: 5Gi
-  global:
-    scrape_interval: 15s
-    evaluation_interval: 15s
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 2Gi
+    persistentVolume:
+      enabled: false
+      size: 5Gi
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
 
 alertmanager:
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
 
 additionalScrapeConfigs:
-  - job_name: istio-proxy
-    kubernetes_sd_configs:
-      - role: pod
-    relabel_configs:
-      - source_labels: [__meta_kubernetes_pod_container_port_name]
-        action: keep
-        regex: http-envoy-prom
+    - job_name: istio-proxy
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: http-envoy-prom

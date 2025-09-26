@@ -1,129 +1,130 @@
+---
 # Alert Configuration Hierarchy
 
 # Global Default Thresholds
 global:
-  error_rate: 1%
-  latency_ms: 300
-  cpu_usage: 80%
-  memory_usage: 75%
-  disk_usage: 85%
-  connection_count: 1000
-  
-  # Default SLOs
-  slos:
-    availability: 99.9%
-    success_rate: 99.5%
+    error_rate: 1%
+    latency_ms: 300
+    cpu_usage: 80%
+    memory_usage: 75%
+    disk_usage: 85%
+    connection_count: 1000
+    
+    # Default SLOs
+    slos:
+      availability: 99.9%
+      success_rate: 99.5%
 
 # Mode-specific Overrides
 modes:
-  compliance:
-    error_rate: 0.5%
-    latency_ms: 250
-    slos:
-      availability: 99.95%
-      success_rate: 99.9%
-    security:
-      max_failed_auth: 5
-      max_suspicious_ips: 0
-  
-  sandbox:
-    error_rate: 2%
-    latency_ms: 500
-    slos:
-      availability: 99%
-      success_rate: 98%
+    compliance:
+      error_rate: 0.5%
+      latency_ms: 250
+      slos:
+        availability: 99.95%
+        success_rate: 99.9%
+      security:
+        max_failed_auth: 5
+        max_suspicious_ips: 0
+    
+    sandbox:
+      error_rate: 2%
+      latency_ms: 500
+      slos:
+        availability: 99%
+        success_rate: 98%
 
 # Service-specific Rules (Override Global)
 services:
-  example-service:
-    # Performance
-    latency_ms: 200
-    error_rate: 0.3%
-    
-    # Resources
-    cpu_usage: 70%
-    memory_usage: 70%
-    
-    # Custom Metrics
-    custom:
-      max_queue_size: 1000
-      max_processing_time: 100
-    
-    # Endpoints
-    endpoints:
-      "/v1/ping":
-        latency_ms: 100
-        error_rate: 0.1%
-      "/health":
-        latency_ms: 50
-        error_rate: 0.1%
+    example-service:
+      # Performance
+      latency_ms: 200
+      error_rate: 0.3%
+      
+      # Resources
+      cpu_usage: 70%
+      memory_usage: 70%
+      
+      # Custom Metrics
+      custom:
+        max_queue_size: 1000
+        max_processing_time: 100
+      
+      # Endpoints
+      endpoints:
+        "/v1/ping":
+          latency_ms: 100
+          error_rate: 0.1%
+        "/health":
+          latency_ms: 50
+          error_rate: 0.1%
 
 # Escalation Paths
 escalation:
-  critical:
-    action: page
-    target: sre-team
-    timeout: immediate
-    channels:
-      - pagerduty
-      - slack-sre-alerts
-    retry_interval: 5m
-    max_retries: 3
-  
-  high:
-    action: alert
-    target: on-call
-    timeout: 15m
-    channels:
-      - slack-oncall
-      - email-oncall
-    retry_interval: 15m
-    max_retries: 2
-  
-  medium:
-    action: ticket
-    target: development
-    timeout: 4h
-    channels:
-      - jira
-      - slack-dev
-    retry_interval: 1h
-    max_retries: 1
-  
-  low:
-    action: dashboard
-    target: monitoring
-    timeout: none
-    channels:
-      - grafana
-    retry_interval: none
+    critical:
+      action: page
+      target: sre-team
+      timeout: immediate
+      channels:
+        - pagerduty
+        - slack-sre-alerts
+      retry_interval: 5m
+      max_retries: 3
+    
+    high:
+      action: alert
+      target: on-call
+      timeout: 15m
+      channels:
+        - slack-oncall
+        - email-oncall
+      retry_interval: 15m
+      max_retries: 2
+    
+    medium:
+      action: ticket
+      target: development
+      timeout: 4h
+      channels:
+        - jira
+        - slack-dev
+      retry_interval: 1h
+      max_retries: 1
+    
+    low:
+      action: dashboard
+      target: monitoring
+      timeout: none
+      channels:
+        - grafana
+      retry_interval: none
 
 # Alert Templates
 templates:
-  latency:
-    title: "High Latency on {{ .service }}"
-    description: "Latency threshold exceeded: {{ .value }}ms > {{ .threshold }}ms"
-    runbook_url: "https://runbooks.example.com/latency"
-  
-  error_rate:
-    title: "Error Rate Spike on {{ .service }}"
-    description: "Error rate threshold exceeded: {{ .value }}% > {{ .threshold }}%"
-    runbook_url: "https://runbooks.example.com/errors"
-  
-  resource_usage:
-    title: "High Resource Usage on {{ .service }}"
-    description: "{{ .resource }} usage at {{ .value }}% > {{ .threshold }}%"
-    runbook_url: "https://runbooks.example.com/resources"
+    latency:
+      title: "High Latency on {{ .service }}"
+      description: "Latency threshold exceeded: {{ .value }}ms > {{ .threshold }}ms"
+      runbook_url: "https://runbooks.example.com/latency"
+    
+    error_rate:
+      title: "Error Rate Spike on {{ .service }}"
+      description: "Error rate threshold exceeded: {{ .value }}% > {{ .threshold }}%"
+      runbook_url: "https://runbooks.example.com/errors"
+    
+    resource_usage:
+      title: "High Resource Usage on {{ .service }}"
+      description: "{{ .resource }} usage at {{ .value }}% > {{ .threshold }}%"
+      runbook_url: "https://runbooks.example.com/resources"
 
 # Monitoring Integration
 monitoring:
-  prometheus:
-    recording_rules:
-      - name: "job:http_requests_total:rate5m"
-        expr: "rate(http_requests_total[5m])"
-      - name: "job:http_request_duration_seconds:p95"
-        expr: "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
-  
-  grafana:
-    dashboard_uid: "service-dashboard"
-    threshold_annotations: true
+    prometheus:
+      recording_rules:
+        - name: "job:http_requests_total:rate5m"
+          expr: "rate(http_requests_total[5m])"
+        - name: "job:http_request_duration_seconds:p95"
+          expr: "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+    
+    grafana:
+      dashboard_uid: "service-dashboard"
+      threshold_annotations: true

@@ -1,40 +1,41 @@
+---
 # Dashboard Configuration
 
 # Data Sources
 datasources:
-  prometheus:
-    type: prometheus
-    uid: prometheus
-    url: http://prometheus:9090
+    prometheus:
+      type: prometheus
+      uid: prometheus
+      url: http://prometheus:9090
 
 # Alert Integration
 alert_thresholds:
-  source: alerts.yaml
-  update_interval: 5m
-  variables:
-    - name: error_rate
-      path: $.global.error_rate
-    - name: latency_ms
-      path: $.global.latency_ms
-    - name: cpu_usage
-      path: $.global.cpu_usage
-    - name: memory_usage
-      path: $.global.memory_usage
+    source: alerts.yaml
+    update_interval: 5m
+    variables:
+      - name: error_rate
+        path: $.global.error_rate
+      - name: latency_ms
+        path: $.global.latency_ms
+      - name: cpu_usage
+        path: $.global.cpu_usage
+      - name: memory_usage
+        path: $.global.memory_usage
 
 # Dashboard Defaults
 defaults:
-  refresh: 30s
-  time_range: now-6h
-  theme: dark
+    refresh: 30s
+    time_range: now-6h
+    theme: dark
 
 # Version Control
 versioning:
-  enabled: true
-  golden_goose: true
-  retention: 90d
+    enabled: true
+    golden_goose: true
+    retention: 90d
 
 # Rollback Configuration
 rollback:
-  enabled: true
-  include_variables: true
-  include_annotations: true
+    enabled: true
+    include_variables: true
+    include_annotations: true

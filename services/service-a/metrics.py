@@ -22,9 +22,10 @@ SERVICE_INFO = Info(
     'Service version and compliance information'
 )
 
+
 def init_metrics(app: FastAPI) -> None:
     """Initialize metrics collection for the service"""
-    
+
     SERVICE_INFO.info({
         'version': 'v1',
         'name': 'service-a',
@@ -35,19 +36,19 @@ def init_metrics(app: FastAPI) -> None:
     @app.middleware("http")
     async def metrics_middleware(request, call_next):
         start_time = time.time()
-        
+
         response = await call_next(request)
-        
+
         # Record request count and latency
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code
         ).inc()
-        
+
         REQUEST_LATENCY.labels(
             method=request.method,
             endpoint=request.url.path
         ).observe(time.time() - start_time)
-        
+
         return response

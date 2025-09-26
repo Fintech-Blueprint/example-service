@@ -7,6 +7,7 @@ import asyncio
 import logging
 from collections import defaultdict
 
+
 class ParallelPromotionManager:
     def __init__(self):
         self.service_dependencies = defaultdict(set)
@@ -33,18 +34,18 @@ class ParallelPromotionManager:
         Returns a dictionary of service names to promotion success status.
         """
         results = {}
-        
+
         # Find independent services that can be promoted in parallel
         independent = self._get_independent_services(services)
         dependent = set(services) - independent
-        
+
         # Promote independent services in parallel
         if independent:
             promotion_tasks = []
             for service in independent:
                 task = asyncio.create_task(self._promote_single_service(service))
                 promotion_tasks.append((service, task))
-            
+
             for service, task in promotion_tasks:
                 try:
                     success = await task
@@ -52,12 +53,12 @@ class ParallelPromotionManager:
                 except Exception as e:
                     self.logger.error(f"Error promoting {service}: {str(e)}")
                     results[service] = False
-        
+
         # Promote dependent services sequentially
         for service in dependent:
             success = await self._promote_single_service(service)
             results[service] = success
-        
+
         return results
 
     async def _promote_single_service(self, service: str) -> bool:
@@ -68,26 +69,26 @@ class ParallelPromotionManager:
             if service in self.active_promotions:
                 self.logger.warning(f"Service {service} is already being promoted")
                 return False
-            
+
             try:
                 self.active_promotions.add(service)
-                
+
                 # Validate dependencies are already promoted
                 deps = self.service_dependencies[service]
                 if not self._validate_dependencies(deps):
                     self.logger.error(f"Dependencies not met for {service}")
                     return False
-                
+
                 # Perform the actual promotion
                 success = await self._execute_promotion(service)
-                
+
                 if success:
                     self.logger.info(f"Successfully promoted {service}")
                     return True
                 else:
                     self.logger.error(f"Failed to promote {service}")
                     return False
-                    
+
             finally:
                 self.active_promotions.remove(service)
 

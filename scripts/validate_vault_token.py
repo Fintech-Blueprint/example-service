@@ -6,6 +6,7 @@ import os
 import json
 from datetime import datetime, timedelta, timezone
 
+
 def validate_token_ttl():
     """Validate the TTL of the provided token."""
     token = os.getenv('VAULT_TOKEN')
@@ -40,6 +41,7 @@ def validate_token_ttl():
         'expiry_time': expire_time.isoformat(),
         'ttl_seconds': remaining.total_seconds()
     }
+
 
 if __name__ == '__main__':
     try:

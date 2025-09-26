@@ -1,43 +1,44 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: service-b-v2
-  labels:
-    app: service-b
-    version: v2
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
+    name: service-b-v2
+    labels:
       app: service-b
       version: v2
-  template:
-    metadata:
-      labels:
+spec:
+    replicas: 1
+    selector:
+      matchLabels:
         app: service-b
         version: v2
-      annotations:
-        sidecar.istio.io/inject: "true"
-    spec:
-      containers:
-      - name: service-b
-        image: yourregistry/service-b:v2
-        ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: http
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: http
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 200m
-            memory: 256Mi
+    template:
+      metadata:
+        labels:
+          app: service-b
+          version: v2
+        annotations:
+          sidecar.istio.io/inject: "true"
+      spec:
+        containers:
+        - name: service-b
+          image: yourregistry/service-b:v2
+          ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

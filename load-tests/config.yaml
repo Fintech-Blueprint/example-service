@@ -1,51 +1,52 @@
+---
 # Load Test Configuration
 
 # Test Scenarios
 scenarios:
-  standard:
-    vus: 50
-    duration: 2m
-    thresholds:
-      latency_p95: 250ms
-      error_rate: 1%
-  
-  compliance:
-    vus: 100
-    duration: 5m
-    thresholds:
-      latency_p95: 200ms
-      error_rate: 0.5%
-  
-  stress:
-    vus: 200
-    duration: 10m
-    thresholds:
-      latency_p95: 300ms
-      error_rate: 2%
+    standard:
+      vus: 50
+      duration: 2m
+      thresholds:
+        latency_p95: 250ms
+        error_rate: 1%
+    
+    compliance:
+      vus: 100
+      duration: 5m
+      thresholds:
+        latency_p95: 200ms
+        error_rate: 0.5%
+    
+    stress:
+      vus: 200
+      duration: 10m
+      thresholds:
+        latency_p95: 300ms
+        error_rate: 2%
 
 # Endpoints
 endpoints:
-  - path: /health
-    method: GET
-    weight: 20
-    sla:
-      latency_p95: 50ms
-      error_rate: 0.1%
-  
-  - path: /ping
-    method: GET
-    weight: 80
-    sla:
-      latency_p95: 200ms
-      error_rate: 0.3%
+    - path: /health
+      method: GET
+      weight: 20
+      sla:
+        latency_p95: 50ms
+        error_rate: 0.1%
+    
+    - path: /ping
+      method: GET
+      weight: 80
+      sla:
+        latency_p95: 200ms
+        error_rate: 0.3%
 
 # Monitoring
 prometheus:
-  enabled: true
-  push_gateway: http://prometheus:9091
+    enabled: true
+    push_gateway: http://prometheus:9091
 
 # Baseline Metrics
 baseline:
-  latency_p95: 150ms
-  error_rate: 0.1%
-  requests_per_second: 100
+    latency_p95: 150ms
+    error_rate: 0.1%
+    requests_per_second: 100

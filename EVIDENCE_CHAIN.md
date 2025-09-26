@@ -684,3 +684,63 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
 - Current Entry: Added
 - Chain Integrity: Maintained
 
+## Evidence Entry: 2025-09-26 23:27:57 UTC
+
+### Sprint: sprint5
+
+### File Information
+- Path: evidence/sprint5/metrics/prometheus_snapshot_20250926T232756Z.json
+- Description: Prometheus metrics snapshot
+- Hash: 7f6baaa467abf49fb01892f9af0b5d5af0bba95aa7cba6aeacedd99316aaa4e0
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 23:28:03 UTC
+
+### Sprint: sprint5
+
+### File Information
+- Path: evidence/sprint5/metrics/grafana_dashboards_20250926T232757Z.json
+- Description: Grafana dashboards export
+- Hash: 35068b44bc10d358b95f220fcc2eb0206faed43fb53794ad70c72440a7d2bdb5
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 23:33:23 UTC
+
+### Sprint: evidence/sprint5/prometheus-pvc-upgrade-20250926T230536Z.log
+
+### File Information
+- Path: evidence/sprint5/grafana-dashboards-20250926T231149Z.json
+- Description: evidence/sprint5/metrics
+- Hash: 02ad0c90fc55b5c8ba9ec02eebff7f6d6647d9079ff6068389ab626054e758cf
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+

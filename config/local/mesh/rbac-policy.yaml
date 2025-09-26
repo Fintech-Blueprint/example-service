@@ -1,22 +1,23 @@
+---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: service-mesh-policy
-  namespace: default
+    name: service-mesh-policy
+    namespace: default
 spec:
-  action: ALLOW
-  rules:
-  - from:
-    - source:
-        principals: ["cluster.local/ns/default/sa/default"]
-    to:
-    - operation:
-        methods: ["GET", "POST"]
-        paths: ["/*"]
-  - from:
-    - source:
-        namespaces: ["istio-system"]
-    to:
-    - operation:
-        methods: ["GET"]
-        paths: ["/metrics", "/status", "/health"]
+    action: ALLOW
+    rules:
+    - from:
+      - source:
+          principals: ["cluster.local/ns/default/sa/default"]
+      to:
+      - operation:
+          methods: ["GET", "POST"]
+          paths: ["/*"]
+    - from:
+      - source:
+          namespaces: ["istio-system"]
+      to:
+      - operation:
+          methods: ["GET"]
+          paths: ["/metrics", "/status", "/health"]

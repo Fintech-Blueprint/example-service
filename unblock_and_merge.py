@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-import os, sys, time, subprocess, requests, json
+import os
+import sys
+import time
+import subprocess
+import requests
+import json
 
 ORG = 'Fintech-Blueprint'
 REPO = 'example-service'
@@ -8,6 +13,7 @@ BRANCH = 'feature/add-ping-endpoint'
 TOKEN_FILE = '/tmp/installation.token'
 POLL_INTERVAL = 10
 POLL_TIMEOUT = 600
+
 
 def run(cmd, check=True):
     print('$', cmd)
@@ -20,20 +26,24 @@ def run(cmd, check=True):
         raise RuntimeError(f'Command failed: {cmd}\n{r.stderr}')
     return r
 
+
 def read_token():
     if not os.path.exists(TOKEN_FILE):
         raise RuntimeError('Installation token missing at ' + TOKEN_FILE)
     return open(TOKEN_FILE).read().strip()
+
 
 def fetch_pr_head_sha(headers):
     r = requests.get(f'https://api.github.com/repos/{ORG}/{REPO}/pulls/{PR}', headers=headers)
     r.raise_for_status()
     return r.json()['head']['sha']
 
+
 def fetch_check_runs(sha, headers):
     r = requests.get(f'https://api.github.com/repos/{ORG}/{REPO}/commits/{sha}/check-runs', headers=headers)
     r.raise_for_status()
     return r.json().get('check_runs', [])
+
 
 def poll_checks(sha, headers, timeout=POLL_TIMEOUT, interval=POLL_INTERVAL):
     deadline = time.time() + timeout
@@ -50,6 +60,7 @@ def poll_checks(sha, headers, timeout=POLL_TIMEOUT, interval=POLL_INTERVAL):
             print('No check-runs yet...')
         time.sleep(interval)
     return [], []
+
 
 def main():
     token = read_token()
@@ -76,8 +87,9 @@ def main():
         for f in failed:
             print('-', f['name'], f.get('conclusion'))
         # Write partial report
-        report = {'pr': PR, 'branch': BRANCH, 'head_sha': head_sha, 'check_runs_count': len(runs), 'failed_checks': [{ 'name': c['name'], 'conclusion': c.get('conclusion') } for c in failed] }
-        with open('/workspaces/test_private/pr_merge_report.md','w') as fh:
+        report = {'pr': PR, 'branch': BRANCH, 'head_sha': head_sha, 'check_runs_count': len(
+            runs), 'failed_checks': [{'name': c['name'], 'conclusion': c.get('conclusion')} for c in failed]}
+        with open('/workspaces/test_private/pr_merge_report.md', 'w') as fh:
             fh.write('# PR Merge Report - Aborted\n')
             fh.write(json.dumps(report, indent=2))
         sys.exit(3)
@@ -87,15 +99,19 @@ def main():
     rrev.raise_for_status()
     reviews = rrev.json()
     if not any(rv.get('state') == 'APPROVED' for rv in reviews):
-        rpost = requests.post(f'https://api.github.com/repos/{ORG}/{REPO}/pulls/{PR}/reviews', headers=headers, json={'body':'Auto-approval by platform admin','event':'APPROVE'})
-        if rpost.status_code not in (200,201):
-            print('Auto-approval failed', rpost.status_code, rpost.text); sys.exit(4)
+        rpost = requests.post(f'https://api.github.com/repos/{ORG}/{REPO}/pulls/{PR}/reviews', headers=headers, json={
+                              'body': 'Auto-approval by platform admin', 'event': 'APPROVE'})
+        if rpost.status_code not in (200, 201):
+            print('Auto-approval failed', rpost.status_code, rpost.text)
+            sys.exit(4)
         print('Auto-approval created')
 
     # Merge PR via squash
-    rmerge = requests.put(f'https://api.github.com/repos/{ORG}/{REPO}/pulls/{PR}/merge', headers=headers, json={'merge_method':'squash'})
-    if rmerge.status_code not in (200,201):
-        print('Merge failed', rmerge.status_code, rmerge.text); sys.exit(5)
+    rmerge = requests.put(
+        f'https://api.github.com/repos/{ORG}/{REPO}/pulls/{PR}/merge', headers=headers, json={'merge_method': 'squash'})
+    if rmerge.status_code not in (200, 201):
+        print('Merge failed', rmerge.status_code, rmerge.text)
+        sys.exit(5)
     merge_data = rmerge.json()
     print('Merged PR successfully! Merge SHA:', merge_data.get('sha'))
 
@@ -104,11 +120,14 @@ def main():
     print('Feature branch delete status:', rdel.status_code)
 
     # Write final report
-    report = {'pr':PR, 'branch':BRANCH, 'head_sha':head_sha, 'check_runs_count': len(runs), 'failed_checks': [], 'merge_sha': merge_data.get('sha')}
-    md = [f'# PR Merge Report — PR #{PR} / {BRANCH}', f'- Head commit: `{head_sha}`', f"- Merge SHA: `{merge_data.get('sha')}`", f"- Check-runs: {len(runs)}", '```json', json.dumps(report, indent=2), '```']
-    with open('/workspaces/test_private/pr_merge_report.md','w') as fh:
+    report = {'pr': PR, 'branch': BRANCH, 'head_sha': head_sha, 'check_runs_count': len(
+        runs), 'failed_checks': [], 'merge_sha': merge_data.get('sha')}
+    md = [f'# PR Merge Report — PR #{PR} / {BRANCH}', f'- Head commit: `{head_sha}`',
+          f"- Merge SHA: `{merge_data.get('sha')}`", f"- Check-runs: {len(runs)}", '```json', json.dumps(report, indent=2), '```']
+    with open('/workspaces/test_private/pr_merge_report.md', 'w') as fh:
         fh.write('\n'.join(md))
     print('Report written to /workspaces/test_private/pr_merge_report.md')
+
 
 if __name__ == '__main__':
     main()

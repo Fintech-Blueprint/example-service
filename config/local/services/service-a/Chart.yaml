@@ -1,3 +1,4 @@
+---
 apiVersion: v2
 name: service-a
 description: Service A for Sprint 2 Mesh Validation
@@ -9,35 +10,35 @@ appVersion: "1.0.0"
 replicaCount: 2
 
 image:
-  repository: nginx
-  tag: stable
-  pullPolicy: IfNotPresent
+    repository: nginx
+    tag: stable
+    pullPolicy: IfNotPresent
 
 nameOverride: ""
 fullnameOverride: "service-a"
 
 service:
-  type: ClusterIP
-  port: 80
+    type: ClusterIP
+    port: 80
 
 resources:
-  limits:
-    cpu: 200m
-    memory: 256Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 deployment:
-  name: service-a-deployment
+    name: service-a-deployment
 
 podAnnotations:
-  sidecar.istio.io/inject: "true"
+    sidecar.istio.io/inject: "true"
 
 securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
 
 serviceAccount:
-  create: true
-  name: "service-a"
+    create: true
+    name: "service-a"
