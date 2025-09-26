@@ -4,6 +4,7 @@ set -e
 
 # Configuration
 EVIDENCE_CHAIN_FILE="EVIDENCE_CHAIN.md"
+DEFAULT_SPRINT="sprint2"
 DATE_FORMAT="%Y-%m-%d %H:%M:%S UTC"
 
 # Function to print usage instructions
@@ -26,6 +27,7 @@ fi
 
 LOG_FILE="$1"
 DESCRIPTION="${2:-Evidence log file}"
+SPRINT_PARAM="${3:-$DEFAULT_SPRINT}"
 
 # Validate file exists
 if [ ! -f "$LOG_FILE" ]; then
@@ -41,10 +43,12 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$LOG_FILE")
 # Generate entry
 ENTRY="## Evidence Entry: $TIMESTAMP
 
+### Sprint: $SPRINT_PARAM
+
 ### File Information
-- Path: \`$RELATIVE_PATH\`
+- Path: \\`$RELATIVE_PATH\\`
 - Description: $DESCRIPTION
-- Hash: \`$HASH\`
+- Hash: \\`$HASH\\`
 - Status: VALIDATED
 
 ### Validation Steps
@@ -67,13 +71,10 @@ fi
 TMP_FILE=$(mktemp)
 
 # Find the evidence section and append the new entry
-awk -v entry="$ENTRY" '
-    /^## Evidence Chain$/ {
-        print
-        print entry
-        print ""
-        next
-    }
+awk -v entry="$ENTRY" -v sprint="$SPRINT_PARAM" '
+    BEGIN { in_sprint=0 }
+    /^## Sprint 3 -- INITIATION/ { print; print entry; in_sprint=1; next }
+    /^## Sprint 3 -- END/ { print; in_sprint=0; next }
     { print }
 ' "$EVIDENCE_CHAIN_FILE" > "$TMP_FILE"
 

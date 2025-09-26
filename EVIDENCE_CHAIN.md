@@ -92,3 +92,35 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
   - Impact: Cluster created, Istio core installed, ingress pending
   - Evidence: Located in evidence/bootstrap.log and evidence/validation/*
   - Checksums: Recorded in evidence/checksums.txt
+
+  ## Sprint 3 — INITIATION
+  **Date:** 2025-09-26  
+  **Branch:** phase4/sprint3-prep  
+  **Status:** INITIATED  
+
+  ### 1. Ingress Gateway
+  - Bootstrap Attempt: Pending Retry  
+  - Log File: `evidence/sprint3/ingress-debug.log`  
+  - SHA256: <placeholder>  
+
+  ### 2. Service-C
+  - Helm Chart Skeleton Created  
+  - Deployment: Pending Cluster Validation  
+  - Config Files: `charts/service-c/values.yaml`, `charts/service-c/templates/`  
+  - SHA256: <placeholder>  
+
+  ### 3. WORM Storage
+  - Draft Config: `storage/worm-config.yaml`  
+  - Status: Draft, pending real storage integration  
+  - SHA256: <placeholder>  
+
+  ### 4. Parallel Promotion
+  - Feature Flag: `enableParallelPromotion = false`  
+  - Status: Disabled until Sprint 3 validation  
+  - SHA256: <placeholder>  
+
+  ### 5. Evidence Notes
+  - All future logs, validation outputs, and configuration hashes should be appended here.  
+  - Maintain chronological order with timestamped entries.  
+  - Cross-reference relevant commits in `phase4/sprint3-prep`.  
+
