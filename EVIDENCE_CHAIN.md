@@ -184,3 +184,143 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
 - Current Entry: Added
 - Chain Integrity: Maintained
 
+## Evidence Entry: 2025-09-26 01:30:00 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/ingress-debug.log
+- Description: ingress bootstrap debug log
+- Hash: 9b9e0dd17335a23cf1ac43a0a39e69f88a7b9af337ed5075efe63dfea0c674de
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 01:30:33 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/mtls-check.log
+- Description: mTLS check (sprint3)
+- Hash: 9cb17d0c244b9ff3994df20e6582c9f6bcedb011293886426f2d6d1dabcd132a
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 01:30:33 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/mtls-check.log
+- Description: mTLS check (sprint3)
+- Hash: 9cb17d0c244b9ff3994df20e6582c9f6bcedb011293886426f2d6d1dabcd132a
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 01:34:42 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/ingress-debug.log
+- Description: ingress bootstrap debug log
+- Hash: 9b9e0dd17335a23cf1ac43a0a39e69f88a7b9af337ed5075efe63dfea0c674de
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:06:33 UTC
+
+### Sprint: mTLS validation
+
+### File Information
+- Path: evidence/sprint3/mtls-20250926_110616.log
+- Description: evidence/sprint3/mtls-check.log
+- Hash: 6f6de618a107d0099f5056edbe18933231ff27925a5775f1c0fd7eab6107ff41
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:06:36 UTC
+
+### Sprint: RBAC validation
+
+### File Information
+- Path: evidence/sprint3/rbac-20250926_110622.log
+- Description: evidence/sprint3/rbac-check.log
+- Hash: 66b9518eec2d7bf819f09513b736ad3b76e364686120c1056ea67d419f9be14c
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:06:38 UTC
+
+### Sprint: evidence/sprint3/bootstrap-20250926_014721.log
+
+### File Information
+- Path: evidence/sprint3/bootstrap-20250926_013853.log
+- Description: evidence/sprint3/bootstrap-20250926_014235.log
+- Hash: 1ffe5bdec3d630e8f666ef1542c2699b33ff2b66953cadfb339411795ae4ab71
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
