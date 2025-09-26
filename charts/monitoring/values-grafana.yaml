@@ -1,3 +1,5 @@
+adminPassword: admin  # Note: In production this should come from Vault
+
 persistence:
   enabled: false
   size: 1Gi
@@ -9,6 +11,13 @@ resources:
   limits:
     cpu: 500m
     memory: 1Gi
+
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    folder: /tmp/dashboards
+    searchNamespace: ALL
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -22,9 +31,8 @@ dashboardProviders:
       editable: true
       options:
         path: /var/lib/grafana/dashboards
-        foldersFromFilesStructure: true
 
-dashboardsConfigMaps:
-  - configMapName: grafana-dashboards
-    fileName: service-b.json
-    folderName: "Service B"
+dashboards:
+  default:
+    service-b:
+      file: dashboards/service-b.json

@@ -42,8 +42,8 @@ mkdir -p evidence/sprint4
 
 # Collect Prometheus targets
 echo "Collecting Prometheus targets..."
-kubectl -n monitoring exec deploy/prometheus-server -- \
-  curl -sS http://localhost:9090/api/v1/targets | jq '.' \
+kubectl -n monitoring exec deploy/prometheus-server -c prometheus-server -- \
+  wget -qO- http://localhost:9090/api/v1/targets | jq '.' \
   > evidence/sprint4/$(date -u +%Y%m%dT%H%M%SZ)-prometheus-targets.log
 
 ./scripts/hash-evidence.sh evidence/sprint4/$(date -u +%Y%m%dT%H%M%SZ)-prometheus-targets.log "Prometheus targets" sprint4
@@ -63,8 +63,9 @@ kubectl exec -n default pod/tester -- sh -c 'for i in $(seq 1 200); do curl -s h
 
 # Query Prometheus for canary ratio
 echo "Collecting Prometheus metrics..."
-kubectl -n monitoring exec deploy/prometheus-server -- \
-  curl -sG 'http://localhost:9090/api/v1/query' --data-urlencode 'query=sum(rate(istio_requests_total{destination_workload="service-b",destination_version="v2"}[1m]))' \
+kubectl -n monitoring exec deploy/prometheus-server -c prometheus-server -- \
+  wget -qO- --post-data='query=sum(rate(istio_requests_total{destination_workload="service-b",destination_version="v2"}[1m]))' \
+  http://localhost:9090/api/v1/query \
   > evidence/sprint4/$(date -u +%Y%m%dT%H%M%SZ)-prometheus-canary-v2.log
 
 ./scripts/hash-evidence.sh evidence/sprint4/$(date -u +%Y%m%dT%H%M%SZ)-prometheus-canary-v2.log "Prometheus canary v2 rate" sprint4
