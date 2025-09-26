@@ -27,3 +27,4 @@ patch_*
 
 # Remove private key from working tree and add notice in ROTATION.md
 org-fintech-blueprint-token-admin.2025-09-14.private-key.pem
+/istio-1.20.0/
