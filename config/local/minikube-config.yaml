@@ -1,0 +1,12 @@
+driver: docker
+cpus: 4
+memory: 8192
+disk-size: 50g
+kubernetes-version: v1.28.0
+addons:
+  - ingress
+  - metrics-server
+extra-config:
+  apiserver.service-account-issuer: kubernetes.default.svc
+  apiserver.service-account-signing-key-file: /var/lib/minikube/certs/sa.key
+  apiserver.authorization-mode: Node,RBAC
