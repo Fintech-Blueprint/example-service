@@ -1,0 +1,28 @@
+server:
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+    storageClass: standard
+  retention: 15d
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+
+alertmanager:
+  persistentVolume:
+    enabled: true
+    size: 2Gi
+    storageClass: standard
+
+additionalScrapeConfigs:
+  - job_name: istio-proxy
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        action: keep
+        regex: http-envoy-prom
