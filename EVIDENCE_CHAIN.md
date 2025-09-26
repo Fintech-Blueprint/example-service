@@ -324,3 +324,103 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
 - Current Entry: Added
 - Chain Integrity: Maintained
 
+## Evidence Entry: 2025-09-26 11:14:22 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/mtls-validate-20250926_111421.log
+- Description: mTLS validation post-deploy
+- Hash: 6f6de618a107d0099f5056edbe18933231ff27925a5775f1c0fd7eab6107ff41
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:18:43 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/mtls-final-20250926_111828.log
+- Description: Final mTLS validation
+- Hash: f0cd48f6990eb08db93ecb6bafbda78960126f0075ed93572b82d996227c7a60
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:18:43 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/rbac-final-20250926_111829.log
+- Description: Final RBAC validation
+- Hash: 66b9518eec2d7bf819f09513b736ad3b76e364686120c1056ea67d419f9be14c
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:18:43 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/istio-analyze-20250926_111843.log
+- Description: Istio configuration analysis
+- Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 11:19:00 UTC
+
+### Sprint: sprint3
+
+### File Information
+- Path: evidence/sprint3/service-c-chart-20250926_111900.yaml
+- Description: Service-C Helm chart rendering
+- Hash: 4fed337c495221169f6c18afd1753d1cd146428bf746075dfde3e2973d3e2630
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+

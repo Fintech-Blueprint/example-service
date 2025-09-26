@@ -1,0 +1,213 @@
+Name:             service-c-service-c-5599684d97-9kmkr
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             sprint3-cluster-worker2/172.18.0.3
+Start Time:       Fri, 26 Sep 2025 11:13:19 +0000
+Labels:           app.kubernetes.io/instance=service-c
+                  app.kubernetes.io/name=service-c
+                  pod-template-hash=5599684d97
+                  security.istio.io/tlsMode=istio
+                  service.istio.io/canonical-name=service-c
+                  service.istio.io/canonical-revision=latest
+Annotations:      istio.io/rev: default
+                  kubectl.kubernetes.io/default-container: service-c
+                  kubectl.kubernetes.io/default-logs-container: service-c
+                  prometheus.io/path: /stats/prometheus
+                  prometheus.io/port: 15020
+                  prometheus.io/scrape: true
+                  sidecar.istio.io/inject: true
+                  sidecar.istio.io/status:
+                    {"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-env...
+Status:           Running
+IP:               10.244.1.3
+IPs:
+  IP:           10.244.1.3
+Controlled By:  ReplicaSet/service-c-service-c-5599684d97
+Init Containers:
+  istio-init:
+    Container ID:  containerd://307f13a41077e6d094736d0e4269425c01d9aa8da671fcabce66d4300828589b
+    Image:         docker.io/istio/proxyv2:1.20.0
+    Image ID:      docker.io/istio/proxyv2@sha256:19e8ca96e4f46733a3377fa962cb88cad13a35afddb9139ff795e36237327137
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      istio-iptables
+      -p
+      15001
+      -z
+      15006
+      -u
+      1337
+      -m
+      REDIRECT
+      -i
+      *
+      -x
+      
+      -b
+      *
+      -d
+      15090,15021,15020
+      --log_output_level=default:info
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Fri, 26 Sep 2025 11:13:23 +0000
+      Finished:     Fri, 26 Sep 2025 11:13:24 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:        10m
+      memory:     40Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7shpk (ro)
+Containers:
+  service-c:
+    Container ID:   containerd://e07221d93b7d8b357977db1a4cff8d1c4f6ecdeec5210a0bfc76c0f3dd4a25c9
+    Image:          nginx:stable
+    Image ID:       docker.io/library/nginx@sha256:2945a0bfa07bf1d3cb9ba5f03678e2827f11c240e4c9d38e075037938310062a
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 26 Sep 2025 11:13:32 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  512Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7shpk (ro)
+  istio-proxy:
+    Container ID:  containerd://d1676f84cd8fbd5192ad3cbcd533f0266ee25d9d740a2bc6ac8ca299abf3c931
+    Image:         docker.io/istio/proxyv2:1.20.0
+    Image ID:      docker.io/istio/proxyv2@sha256:19e8ca96e4f46733a3377fa962cb88cad13a35afddb9139ff795e36237327137
+    Port:          15090/TCP
+    Host Port:     0/TCP
+    Args:
+      proxy
+      sidecar
+      --domain
+      $(POD_NAMESPACE).svc.cluster.local
+      --proxyLogLevel=warning
+      --proxyComponentLogLevel=misc:error
+      --log_output_level=default:info
+    State:          Running
+      Started:      Fri, 26 Sep 2025 11:13:32 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:      10m
+      memory:   40Mi
+    Readiness:  http-get http://:15021/healthz/ready delay=0s timeout=3s period=15s #success=1 #failure=4
+    Startup:    http-get http://:15021/healthz/ready delay=0s timeout=3s period=1s #success=1 #failure=600
+    Environment:
+      JWT_POLICY:                    third-party-jwt
+      PILOT_CERT_PROVIDER:           istiod
+      CA_ADDR:                       istiod.istio-system.svc:15012
+      POD_NAME:                      service-c-service-c-5599684d97-9kmkr (v1:metadata.name)
+      POD_NAMESPACE:                 default (v1:metadata.namespace)
+      INSTANCE_IP:                    (v1:status.podIP)
+      SERVICE_ACCOUNT:                (v1:spec.serviceAccountName)
+      HOST_IP:                        (v1:status.hostIP)
+      ISTIO_CPU_LIMIT:               2 (limits.cpu)
+      PROXY_CONFIG:                  {}
+                                     
+      ISTIO_META_POD_PORTS:          [
+                                         {"containerPort":80,"protocol":"TCP"}
+                                     ]
+      ISTIO_META_APP_CONTAINERS:     service-c
+      GOMEMLIMIT:                    1073741824 (limits.memory)
+      GOMAXPROCS:                    2 (limits.cpu)
+      ISTIO_META_CLUSTER_ID:         Kubernetes
+      ISTIO_META_NODE_NAME:           (v1:spec.nodeName)
+      ISTIO_META_INTERCEPTION_MODE:  REDIRECT
+      ISTIO_META_WORKLOAD_NAME:      service-c-service-c
+      ISTIO_META_OWNER:              kubernetes://apis/apps/v1/namespaces/default/deployments/service-c-service-c
+      ISTIO_META_MESH_ID:            cluster.local
+      TRUST_DOMAIN:                  cluster.local
+    Mounts:
+      /etc/istio/pod from istio-podinfo (rw)
+      /etc/istio/proxy from istio-envoy (rw)
+      /var/lib/istio/data from istio-data (rw)
+      /var/run/secrets/credential-uds from credential-socket (rw)
+      /var/run/secrets/istio from istiod-ca-cert (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7shpk (ro)
+      /var/run/secrets/tokens from istio-token (rw)
+      /var/run/secrets/workload-spiffe-credentials from workload-certs (rw)
+      /var/run/secrets/workload-spiffe-uds from workload-socket (rw)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  workload-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  credential-socket:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  workload-certs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-envoy:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  istio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  istio-podinfo:
+    Type:  DownwardAPI (a volume populated by information about the pod)
+    Items:
+      metadata.labels -> labels
+      metadata.annotations -> annotations
+  istio-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  43200
+  istiod-ca-cert:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      istio-ca-root-cert
+    Optional:  false
+  kube-api-access-7shpk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  45s   default-scheduler  Successfully assigned default/service-c-service-c-5599684d97-9kmkr to sprint3-cluster-worker2
+  Normal  Pulling    45s   kubelet            Pulling image "docker.io/istio/proxyv2:1.20.0"
+  Normal  Pulled     41s   kubelet            Successfully pulled image "docker.io/istio/proxyv2:1.20.0" in 3.557499496s (3.557505644s including waiting)
+  Normal  Created    41s   kubelet            Created container istio-init
+  Normal  Started    41s   kubelet            Started container istio-init
+  Normal  Pulling    38s   kubelet            Pulling image "nginx:stable"
+  Normal  Pulled     32s   kubelet            Successfully pulled image "nginx:stable" in 6.469812676s (6.469853458s including waiting)
+  Normal  Created    32s   kubelet            Created container service-c
+  Normal  Started    32s   kubelet            Started container service-c
+  Normal  Pulled     32s   kubelet            Container image "docker.io/istio/proxyv2:1.20.0" already present on machine
+  Normal  Created    32s   kubelet            Created container istio-proxy
+  Normal  Started    32s   kubelet            Started container istio-proxy

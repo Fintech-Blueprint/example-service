@@ -1,47 +1,32 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ .Values.fullnameOverride }}
-  labels:
-    app: {{ .Values.fullnameOverride }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    app: {{ .Values.fullnameOverride }}
----
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.deployment.name }}
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Values.fullnameOverride }}
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.fullnameOverride }}
+      app.kubernetes.io/name: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.fullnameOverride }}
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- if .Values.istio.sidecarInject }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-      securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
-        - name: {{ .Values.fullnameOverride }}
+        - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
+            - containerPort: {{ .Values.service.port }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
