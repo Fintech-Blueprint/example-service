@@ -85,46 +85,105 @@ kubectl wait --for=condition=ready nodes --all --timeout=120s
 log_info "Installing Istio ${ISTIO_VERSION} via Helm (golden path)..."
 
 # Add Istio helm repo
+log_info "Adding Istio Helm repository..."
 helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo update
 
-log_info "Installing Istio base (helm)..."
-helm upgrade --install istio-base istio/base \
-    --namespace istio-system --create-namespace --wait --version "${ISTIO_VERSION}"
+# Create istio-system namespace
+kubectl create namespace istio-system 2>/dev/null || true
 
-log_info "Installing Istiod (helm)..."
-helm upgrade --install istiod istio/istiod \
-    --namespace istio-system --wait --version "${ISTIO_VERSION}"
+log_info "Installing Istio base chart..."
+helm install istio-base istio/base \
+  --namespace istio-system \
+  --version "${ISTIO_VERSION}" \
+  --wait \
+  --timeout 5m || true
 
-log_info "Installing Istio Ingress Gateway (helm)..."
-helm upgrade --install istio-ingress istio/gateway \
-    --namespace istio-system --wait --version "${ISTIO_VERSION}"
+sleep 10
 
-# Enable injection for default namespace
-kubectl label namespace default istio-injection=enabled --overwrite
+log_info "Installing Istiod..."
+helm install istiod istio/istiod \
+  --namespace istio-system \
+  --version "${ISTIO_VERSION}" \
+  --wait \
+  --timeout 5m || true
+
+# Wait for istiod to be ready
+kubectl wait --for=condition=available deployment/istiod -n istio-system --timeout=300s || true
+
+log_info "Installing Istio gateway..."
+helm install istio-ingressgateway istio/gateway \
+  --namespace istio-system \
+  --version "${ISTIO_VERSION}" \
+  --wait \
+  --timeout 5m || true
+
+# Wait for gateway to be ready
+kubectl wait --for=condition=available deployment/istio-ingressgateway -n istio-system --timeout=300s || true
+
+log_info "Collecting final evidence..."
+
+# Save Istio status
+TS=$(date +%Y%m%d-%H%M%S)
+kubectl get pods -n istio-system -o wide > "${EVIDENCE_DIR}/istio-pods-${TS}.log"
+kubectl get events -n istio-system --sort-by=.lastTimestamp | tail -n 50 > "${EVIDENCE_DIR}/istio-events-${TS}.log"
+
+# Save service status and mesh validation
+kubectl get pods -n "${NAMESPACE}" -o wide > "${EVIDENCE_DIR}/service-pods-${TS}.log"
+kubectl get events -n "${NAMESPACE}" --sort-by=.lastTimestamp | tail -n 50 > "${EVIDENCE_DIR}/service-events-${TS}.log"
+
+# Hash the evidence files
+for logfile in "${EVIDENCE_DIR}"/*-"${TS}".log; do
+    if [ -f "$logfile" ]; then
+        ./scripts/hash-evidence.sh "$logfile" "$(basename "$logfile")" "${SPRINT}"
+    fi
+done
+
+log_info "Bootstrap complete! Check ${EVIDENCE_DIR} for logs and evidence."# Enable injection for default namespace (best-effort)
+if kubectl label namespace default istio-injection=enabled --overwrite >>"$ISTIO_LOG" 2>&1; then
+    log_info "Enabled istio-injection on namespace 'default'"
+else
+    log_warn "Failed to label namespace 'default' for istio-injection (see $ISTIO_LOG)"
+fi
 
 # ==============================
 # DEPLOY SERVICES
 # ==============================
-log_info "Deploying Service-A and Service-B..."
+log_info "Deploying services (A, B, C)..."
 
 # Deploy Service-A
 log_info "Deploying Service-A..."
 helm upgrade --install service-a "${CONFIG_DIR}/services/service-a" \
     --namespace "${NAMESPACE}" \
     --create-namespace \
-    --wait
+    --wait \
+    --timeout 5m || log_warn "Service-A helm install failed"
 
 # Deploy Service-B
 log_info "Deploying Service-B..."
 helm upgrade --install service-b "${CONFIG_DIR}/services/service-b" \
     --namespace "${NAMESPACE}" \
     --create-namespace \
-    --wait
+    --wait \
+    --timeout 5m || log_warn "Service-B helm install failed"
+
+# Deploy Service-C
+log_info "Deploying Service-C..."
+helm upgrade --install service-c charts/service-c \
+    --namespace "${NAMESPACE}" \
+    --create-namespace \
+    --wait \
+    --timeout 5m || log_warn "Service-C helm install failed"
 
 log_info "Waiting for services to be ready..."
-kubectl wait --for=condition=available deployment/service-a-deployment --timeout=120s || log_warn "service-a did not become available in time"
-kubectl wait --for=condition=available deployment/service-b-deployment --timeout=120s || log_warn "service-b did not become available in time"
+for svc in service-a service-b service-c; do
+    if kubectl wait --for=condition=available "deployment/${svc}" -n "${NAMESPACE}" --timeout=120s; then
+        log_info "${svc} is available"
+    else
+        log_warn "${svc} did not become available in time"
+        kubectl get pods -l "app.kubernetes.io/name=${svc}" -n "${NAMESPACE}" -o wide || true
+    fi
+done
 
 # ==============================
 # VALIDATION

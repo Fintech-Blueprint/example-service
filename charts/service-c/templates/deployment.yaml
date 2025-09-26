@@ -16,6 +16,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "service-c.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        {{- if .Values.istio.sidecarInject }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
     spec:
       containers:
         - name: service-c
