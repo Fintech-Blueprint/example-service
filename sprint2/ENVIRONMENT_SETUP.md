@@ -47,7 +47,82 @@ storage:
 
 ## 2. Setup Steps
 
-### 2.1 Required Tools Setup
+### 2.1 Local Development Setup
+
+#### Option 1: Automated Setup (Recommended)
+We provide a bootstrap script that sets up the entire local environment:
+
+```bash
+# Make the script executable
+chmod +x bootstrap-local-mesh.sh
+
+# Run the bootstrap script
+./bootstrap-local-mesh.sh
+```
+
+The script will:
+1. Create a Kind cluster with proper resource allocation
+2. Install Istio and all required components
+3. Deploy service-a and service-b
+4. Run validation scripts
+5. Collect and hash evidence
+
+#### Option 2: Manual Setup Steps
+
+1. Create Kind cluster using provided configuration:
+   ```bash
+   kind create cluster --name sprint2-mesh --config config/local/kind-config.yaml
+   ```
+
+2. Alternative: Use Minikube (fallback option)
+   ```bash
+   minikube start --config config/local/minikube-config.yaml
+   ```
+
+3. Verify cluster health:
+   ```bash
+   kubectl get nodes
+   kubectl get componentstatuses
+   ```
+
+4. Install Istio components:
+   ```bash
+   # Add Istio helm repo
+   helm repo add istio https://istio-release.storage.googleapis.com/charts
+   helm repo update
+
+   # Create namespace
+   kubectl create namespace istio-system
+
+   # Install base
+   helm install istio-base istio/base -n istio-system --version 1.20.0
+
+   # Install istiod
+   helm install istiod istio/istiod -n istio-system --version 1.20.0
+
+   # Install gateway
+   helm install istio-ingress istio/gateway -n istio-system --version 1.20.0
+   ```
+
+5. Enable Istio injection:
+   ```bash
+   kubectl label namespace default istio-injection=enabled
+   ```
+
+6. Deploy services:
+   ```bash
+   # Deploy service-a
+   helm upgrade --install service-a config/local/services/service-a \
+     --namespace default \
+     --create-namespace
+
+   # Deploy service-b
+   helm upgrade --install service-b config/local/services/service-b \
+     --namespace default \
+     --create-namespace
+   ```
+
+### 2.2 Required Tools Setup
 
 1. Install kubectl
    ```bash
