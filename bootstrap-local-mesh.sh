@@ -2,14 +2,18 @@
 set -euo pipefail
 
 # ==============================
-# CONFIGURATION
+# CONFIGURATION (overridable via env)
 # ==============================
-CLUSTER_NAME="sprint2-mesh"
-K8S_VERSION="v1.28.0"
-ISTIO_VERSION="1.20.0"
-NAMESPACE="default"
-EVIDENCE_DIR="evidence/mesh"
-CONFIG_DIR="config/local"
+# Set SPRINT (sprint2 or sprint3) to pick evidence dir; default to sprint2
+SPRINT="${SPRINT:-sprint2}"
+# Cluster name can be overridden via CLUSTER_NAME env; default follows sprint
+CLUSTER_NAME="${CLUSTER_NAME:-${SPRINT}-cluster}"
+K8S_VERSION="${K8S_VERSION:-v1.28.0}"
+ISTIO_VERSION="${ISTIO_VERSION:-1.20.0}"
+NAMESPACE="${NAMESPACE:-default}"
+# Evidence dir defaults to evidence/<sprint>
+EVIDENCE_DIR="${EVIDENCE_DIR:-evidence/${SPRINT}}"
+CONFIG_DIR="${CONFIG_DIR:-config/local}"
 
 # Color output
 RED='\033[0;31m'
@@ -70,33 +74,24 @@ kubectl wait --for=condition=ready nodes --all --timeout=120s
 # ==============================
 # ISTIO INSTALLATION
 # ==============================
-log_info "Installing Istio ${ISTIO_VERSION}..."
+
+log_info "Installing Istio ${ISTIO_VERSION} via Helm (golden path)..."
 
 # Add Istio helm repo
 helm repo add istio https://istio-release.storage.googleapis.com/charts
 helm repo update
 
-# Install Istio base
-log_info "Installing Istio base..."
-helm install istio-base istio/base \
-    --namespace istio-system \
-    --create-namespace \
-    --version "${ISTIO_VERSION}" \
-    --wait
+log_info "Installing Istio base (helm)..."
+helm upgrade --install istio-base istio/base \
+    --namespace istio-system --create-namespace --wait --version "${ISTIO_VERSION}"
 
-# Install Istiod
-log_info "Installing Istiod..."
-helm install istiod istio/istiod \
-    --namespace istio-system \
-    --version "${ISTIO_VERSION}" \
-    --wait
+log_info "Installing Istiod (helm)..."
+helm upgrade --install istiod istio/istiod \
+    --namespace istio-system --wait --version "${ISTIO_VERSION}"
 
-# Install Istio Ingress Gateway
-log_info "Installing Istio Ingress Gateway..."
-helm install istio-ingress istio/gateway \
-    --namespace istio-system \
-    --version "${ISTIO_VERSION}" \
-    --wait
+log_info "Installing Istio Ingress Gateway (helm)..."
+helm upgrade --install istio-ingress istio/gateway \
+    --namespace istio-system --wait --version "${ISTIO_VERSION}"
 
 # Enable injection for default namespace
 kubectl label namespace default istio-injection=enabled --overwrite
@@ -121,8 +116,8 @@ helm upgrade --install service-b "${CONFIG_DIR}/services/service-b" \
     --wait
 
 log_info "Waiting for services to be ready..."
-kubectl wait --for=condition=available deployment/service-a-deployment --timeout=120s
-kubectl wait --for=condition=available deployment/service-b-deployment --timeout=120s
+kubectl wait --for=condition=available deployment/service-a-deployment --timeout=120s || log_warn "service-a did not become available in time"
+kubectl wait --for=condition=available deployment/service-b-deployment --timeout=120s || log_warn "service-b did not become available in time"
 
 # ==============================
 # VALIDATION
@@ -150,20 +145,26 @@ fi
 # ==============================
 log_info "Collecting evidence..."
 
+# Ensure evidence dir exists
+mkdir -p "${EVIDENCE_DIR}"
+
 # Collect cluster info
-kubectl cluster-info dump > "${EVIDENCE_DIR}/cluster-info-$(date +%Y%m%d-%H%M%S).log"
+# Capture cluster info
+kubectl cluster-info dump > "${EVIDENCE_DIR}/cluster-info-$(date +%Y%m%d-%H%M%S).log" 2>&1 || log_warn "cluster-info dump failed"
 
 # Collect Istio status
-istioctl analyze -A > "${EVIDENCE_DIR}/istio-analysis-$(date +%Y%m%d-%H%M%S).log"
+# istio analysis
+istioctl analyze -A > "${EVIDENCE_DIR}/istio-analysis-$(date +%Y%m%d-%H%M%S).log" 2>&1 || log_warn "istioctl analyze failed"
 
 # Collect pod status
-kubectl get pods -A -o wide > "${EVIDENCE_DIR}/pods-status-$(date +%Y%m%d-%H%M%S).log"
+# pod status
+kubectl get pods -A -o wide > "${EVIDENCE_DIR}/pods-status-$(date +%Y%m%d-%H%M%S).log" 2>&1 || log_warn "kubectl get pods failed"
 
 # Hash the evidence files
 if [[ -x scripts/hash-evidence.sh ]]; then
     log_info "Hashing evidence files..."
     for file in "${EVIDENCE_DIR}"/*.log; do
-        ./scripts/hash-evidence.sh "$file" "Local mesh setup evidence"
+        ./scripts/hash-evidence.sh "$file" "Local mesh setup evidence" "$SPRINT"
     done
 fi
 
@@ -172,6 +173,7 @@ fi
 # ==============================
 log_info "Local mesh setup complete!"
 log_info "Cluster: ${CLUSTER_NAME}"
+log_info "Sprint: ${SPRINT}"
 log_info "Evidence location: ${EVIDENCE_DIR}/"
 log_info "To use the cluster:"
 echo "  export KUBECONFIG=$(kind get kubeconfig --name ${CLUSTER_NAME})"
