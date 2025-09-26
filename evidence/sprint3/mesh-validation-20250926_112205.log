@@ -1,0 +1,16 @@
+ℹ️ Starting mesh validation for namespace: default
+ℹ️ ====================
+ℹ️ Validating mesh configuration...
+ℹ️ Checking Istio control plane...
+✅ Istiod is running
+ℹ️ Checking proxy status...
+✅ All proxies are synced
+
+ℹ️ Checking mTLS policy in namespace: default
+❌ STRICT mTLS policy not found
+
+ℹ️ Checking RBAC policies in namespace: default
+✅ Authorization policy found
+✅ Authorization policy has ALLOW action
+
+❌ Some validations failed
