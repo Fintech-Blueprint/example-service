@@ -644,3 +644,43 @@ See [sprint2/ENVIRONMENT_SETUP.md](sprint2/ENVIRONMENT_SETUP.md) for cluster req
 - Current Entry: Added
 - Chain Integrity: Maintained
 
+## Evidence Entry: 2025-09-26 23:26:03 UTC
+
+### Sprint: sprint5
+
+### File Information
+- Path: evidence/sprint5/metrics/prometheus_snapshot_20250926T232602Z.json
+- Description: Prometheus metrics snapshot
+- Hash: ea846e1a771dc2125ca07405c03d49dfc2e168441e42f487098079f484ef1180
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
+## Evidence Entry: 2025-09-26 23:26:08 UTC
+
+### Sprint: sprint5
+
+### File Information
+- Path: evidence/sprint5/metrics/grafana_dashboards_20250926T232603Z.json
+- Description: Grafana dashboards export
+- Hash: 17b2131c5b2f7773e984f650373f31f0a7d6b5706b96e7ce785b8d07e2e86665
+- Status: VALIDATED
+
+### Validation Steps
+1. SHA256 hash generated
+2. Added to evidence chain
+3. Original log preserved
+
+### Chain Status
+- Previous Entry: Valid
+- Current Entry: Added
+- Chain Integrity: Maintained
+
