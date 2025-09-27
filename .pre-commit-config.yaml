@@ -1,27 +1,28 @@
 ---
+---
 repos:
-  - repo: local
-    hooks:
-      - id: workflow-vars-enforced
-        name: Enforce Workflow Variable Naming
-        entry: python3 scripts/enforce_workflow_vars.py
-        language: system
-        types: [yaml]
-        files: \.github/workflows/.*\.yml$
-        pass_filenames: false
-        description: 'Fail if workflow YAMLs use variables not in workflow-vars.md spec.'
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-  - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.32.0
-    hooks:
-      - id: yamllint
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.6.27
-    hooks:
-      - id: actionlint
+    - repo: local
+      hooks:
+        - id: workflow-vars-enforced
+          name: Enforce Workflow Variable Naming
+          entry: python3 scripts/enforce_workflow_vars.py
+          language: system
+          types: [yaml]
+          files: \.github/workflows/.*\.yml$
+          pass_filenames: false
+          description: 'Fail if workflow YAMLs use variables not in workflow-vars.md spec.'
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.5.0
+      hooks:
+        - id: trailing-whitespace
+        - id: end-of-file-fixer
+        - id: check-yaml
+        - id: check-added-large-files
+    - repo: https://github.com/adrienverge/yamllint.git
+      rev: v1.32.0
+      hooks:
+        - id: yamllint
+    - repo: https://github.com/rhysd/actionlint
+      rev: v1.6.27
+      hooks:
+        - id: actionlint

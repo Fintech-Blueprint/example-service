@@ -1,0 +1,21 @@
+LAST SEEN   TYPE      REASON                         OBJECT                                         MESSAGE
+5m9s        Normal    Scheduled                      pod/istiod-7d4885fc54-bt22n                    Successfully assigned istio-system/istiod-7d4885fc54-bt22n to sprint3-cluster-worker2
+5m9s        Normal    ScalingReplicaSet              deployment/istiod                              Scaled up replica set istiod-7d4885fc54 to 1
+5m9s        Normal    NoPods                         poddisruptionbudget/istiod                     No matching pods found
+5m9s        Normal    SuccessfulCreate               replicaset/istiod-7d4885fc54                   Created pod: istiod-7d4885fc54-bt22n
+5m8s        Normal    Pulling                        pod/istiod-7d4885fc54-bt22n                    Pulling image "docker.io/istio/pilot:1.20.0"
+5m4s        Normal    Pulled                         pod/istiod-7d4885fc54-bt22n                    Successfully pulled image "docker.io/istio/pilot:1.20.0" in 4.532676794s (4.53268457s including waiting)
+5m4s        Normal    Started                        pod/istiod-7d4885fc54-bt22n                    Started container discovery
+5m4s        Normal    Created                        pod/istiod-7d4885fc54-bt22n                    Created container discovery
+5m3s        Warning   Unhealthy                      pod/istiod-7d4885fc54-bt22n                    Readiness probe failed: HTTP probe failed with statuscode: 503
+5m          Normal    Scheduled                      pod/istio-ingressgateway-778d69499b-k2fjc      Successfully assigned istio-system/istio-ingressgateway-778d69499b-k2fjc to sprint3-cluster-worker
+5m          Normal    ScalingReplicaSet              deployment/istio-ingressgateway                Scaled up replica set istio-ingressgateway-778d69499b to 1
+5m          Normal    SuccessfulCreate               replicaset/istio-ingressgateway-778d69499b     Created pod: istio-ingressgateway-778d69499b-k2fjc
+5m          Normal    Pulling                        pod/istio-ingressgateway-778d69499b-k2fjc      Pulling image "docker.io/istio/proxyv2:1.20.0"
+4m51s       Normal    Started                        pod/istio-ingressgateway-778d69499b-k2fjc      Started container istio-proxy
+4m51s       Normal    Created                        pod/istio-ingressgateway-778d69499b-k2fjc      Created container istio-proxy
+4m51s       Normal    Pulled                         pod/istio-ingressgateway-778d69499b-k2fjc      Successfully pulled image "docker.io/istio/proxyv2:1.20.0" in 8.304556829s (8.304567567s including waiting)
+2m9s        Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/istiod                 invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server could not find the requested resource (get pods.metrics.k8s.io)
+2m          Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/istio-ingressgateway   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server could not find the requested resource (get pods.metrics.k8s.io)
+114s        Warning   FailedGetResourceMetric        horizontalpodautoscaler/istiod                 failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server could not find the requested resource (get pods.metrics.k8s.io)
+105s        Warning   FailedGetResourceMetric        horizontalpodautoscaler/istio-ingressgateway   failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server could not find the requested resource (get pods.metrics.k8s.io)

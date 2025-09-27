@@ -1,0 +1,33 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: service-c-latency
+  namespace: default
+spec:
+  action: delay
+  mode: one
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      "app": "service-c"
+  delay:
+    latency: "100ms"
+    correlation: "100"
+    jitter: "0ms"
+---
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: service-c-kill
+  namespace: default
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      "app": "service-c"
+  scheduler:
+    cron: "@every 30m"

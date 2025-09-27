@@ -1,0 +1,15 @@
+{
+  "service": "service-a",
+  "version": "1.0.0",
+  "dependencies": {
+    "runtime": [],
+    "data": [],
+    "security": [],
+    "compliance": []
+  },
+  "metadata": {
+    "phase": "poc",
+    "sprint": "1",
+    "dependency_validation": "linear"
+  }
+}

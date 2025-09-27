@@ -1,0 +1,78 @@
+[0;32m[INFO][0m Checking prerequisites...
+No kind clusters found.
+[0;32m[INFO][0m Creating Kind cluster sprint2-mesh...
+Creating cluster "sprint2-mesh" ...
+ • Ensuring node image (kindest/node:v1.27.3) 🖼  ...
+ ✓ Ensuring node image (kindest/node:v1.27.3) 🖼
+ • Preparing nodes 📦 📦 📦   ...
+ ✓ Preparing nodes 📦 📦 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Joining worker nodes 🚜  ...
+ ✓ Joining worker nodes 🚜
+Set kubectl context to "kind-sprint2-mesh"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-sprint2-mesh
+
+Thanks for using kind! 😊
+[0;32m[INFO][0m Waiting for cluster to be ready...
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+node/sprint2-mesh-control-plane condition met
+node/sprint2-mesh-worker condition met
+node/sprint2-mesh-worker2 condition met
+[0;32m[INFO][0m Installing Istio 1.20.0...
+"istio" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "istio" chart repository
+Update Complete. ⎈Happy Helming!⎈
+[0;32m[INFO][0m Installing Istio base...
+NAME: istio-base
+LAST DEPLOYED: Fri Sep 26 00:39:08 2025
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Istio base successfully installed!
+
+To learn more about the release, try:
+  $ helm status istio-base
+  $ helm get all istio-base
+[0;32m[INFO][0m Installing Istiod...
+NAME: istiod
+LAST DEPLOYED: Fri Sep 26 00:39:09 2025
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+"istiod" successfully installed!
+
+To learn more about the release, try:
+  $ helm status istiod
+  $ helm get all istiod
+
+Next steps:
+  * Deploy a Gateway: https://istio.io/latest/docs/setup/additional-setup/gateway/
+  * Try out our tasks to get started on common configurations:
+    * https://istio.io/latest/docs/tasks/traffic-management
+    * https://istio.io/latest/docs/tasks/security/
+    * https://istio.io/latest/docs/tasks/policy-enforcement/
+  * Review the list of actively supported releases, CVE publications and our hardening guide:
+    * https://istio.io/latest/docs/releases/supported-releases/
+    * https://istio.io/latest/news/security/
+    * https://istio.io/latest/docs/ops/best-practices/security/
+
+For further documentation see https://istio.io website
+[0;32m[INFO][0m Installing Istio Ingress Gateway...
+Error: INSTALLATION FAILED: context deadline exceeded

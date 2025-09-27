@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["run_id", "release_tag", "pre_snapshot_manifest", "cosign_verify", "rollback_action", "post_health", "checksums_verify"],
+  "properties": {
+    "run_id": {
+      "type": "string"
+    },
+    "release_tag": {
+      "type": "string"
+    },
+    "pre_snapshot_manifest": {
+      "type": "string"
+    },
+    "cosign_verify": {
+      "type": "object"
+    },
+    "rollback_action": {
+      "type": "string"
+    },
+    "post_health": {
+      "type": "object",
+      "required": ["status", "response"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["healthy", "unhealthy"]
+        },
+        "response": {
+          "type": "object"
+        }
+      }
+    },
+    "checksums_verify": {
+      "type": "object",
+      "required": ["ok", "errors"],
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,9 @@
 ---
+---
 - id: workflow-vars
-  name: Enforce Workflow Variable Naming
-  entry: python3 scripts/enforce_workflow_vars.py
-  language: system
-  files: \.ya?ml$
-  description: |
-    Fail if workflow YAMLs use variables not in workflow-vars.md spec.
+    name: Enforce Workflow Variable Naming
+    entry: python3 scripts/enforce_workflow_vars.py
+    language: system
+    files: \.ya?ml$
+    description: |
+      Fail if workflow YAMLs use variables not in workflow-vars.md spec.

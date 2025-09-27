@@ -1,0 +1,8 @@
+Updated Tool Versions (Thu Sep 25 14:26:10 UTC 2025):
+Vault: Vault v1.20.4 (55bd8f18c6c84aa89fdede4850a622c57f03bd7e), built 2025-09-23T13:22:38Z
+GitHub CLI: gh version 2.75.0 (2025-07-09)
+https://github.com/cli/cli/releases/tag/v2.75.0
+kubectl: Client Version: v1.34.1
+Kustomize Version: v5.7.1
+istioctl: 1.20.0
+AWS CLI: aws-cli/2.31.1 Python/3.13.7 Linux/6.8.0-1030-azure exe/x86_64.ubuntu.24

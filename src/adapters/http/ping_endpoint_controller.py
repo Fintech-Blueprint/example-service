@@ -3,6 +3,7 @@ from src.core.ping_endpoint.service import PingEndpointService
 
 router = APIRouter()
 
+
 @router.get("/ping_endpoint")
 def ping_endpoint():
     service = PingEndpointService()

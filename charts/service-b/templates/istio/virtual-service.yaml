@@ -1,0 +1,18 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+    name: service-b
+spec:
+    hosts:
+    - service-b
+    http:
+    - route:
+      - destination:
+          host: service-b
+          subset: v1
+        weight: 90
+      - destination:
+          host: service-b
+          subset: v2
+        weight: 10

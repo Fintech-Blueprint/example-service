@@ -1,0 +1,22 @@
+---
+replicaCount: 1
+
+image:
+    repository: nginx  # placeholder for service-a image
+    tag: stable
+    pullPolicy: IfNotPresent
+
+service:
+    type: ClusterIP
+    port: 80
+
+resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+istio:
+    sidecarInject: true

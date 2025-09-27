@@ -1,0 +1,41 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+    name: service-b
+spec:
+    host: service-b
+    trafficPolicy:
+      outlierDetection:
+        consecutive5xxErrors: 5
+        interval: 10s
+        baseEjectionTime: 30s
+    subsets:
+    - name: v1
+      labels:
+        version: v1
+    - name: v2
+      labels:
+        version: v2
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+    name: service-b
+spec:
+    hosts:
+    - service-b
+    http:
+    - route:
+      - destination:
+          host: service-b
+          subset: v1
+        weight: 90
+      - destination:
+          host: service-b
+          subset: v2
+        weight: 10
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream,5xx

@@ -1,0 +1,32 @@
+Release "istio-base" does not exist. Installing it now.
+NAME: istio-base
+LAST DEPLOYED: Fri Sep 26 01:50:40 2025
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Istio base successfully installed!
+
+To learn more about the release, try:
+  $ helm status istio-base
+  $ helm get all istio-base
+error: no matching resources found
+No resources found in istio-system namespace.
+No resources found in istio-system namespace.
+Release "istio-base" has been upgraded. Happy Helming!
+NAME: istio-base
+LAST DEPLOYED: Fri Sep 26 01:50:46 2025
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+Istio base successfully installed!
+
+To learn more about the release, try:
+  $ helm status istio-base
+  $ helm get all istio-base
+error: no matching resources found
+No resources found in istio-system namespace.
+No resources found in istio-system namespace.

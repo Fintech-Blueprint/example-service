@@ -1,0 +1,9 @@
+NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/service-c-service-c   1/1     1            1           27s
+
+NAME                                       READY   STATUS    RESTARTS   AGE
+pod/service-c-service-c-5599684d97-9kmkr   2/2     Running   0          26s
+
+NAME                          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes            ClusterIP   10.96.0.1       <none>        443/TCP   9h
+service/service-c-service-c   ClusterIP   10.96.113.159   <none>        80/TCP    27s

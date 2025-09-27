@@ -1,0 +1,590 @@
+[INFO] Checking mTLS configuration...
+[CHECK] PeerAuthentication in istio-system namespace...
+apiVersion: v1
+items: []
+kind: List
+metadata:
+  resourceVersion: ""
+[CHECK] Service-to-service mTLS status...
+Namespace: default
+Namespace: istio-system
+Pod: istio-ingress-6f9c5dd58d-6lq7c
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: istiod-7d4885fc54-ttfc2
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Namespace: kube-node-lease
+Namespace: kube-public
+Namespace: kube-system
+Pod: coredns-5d78c9869d-htkn8
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: coredns-5d78c9869d-xc84g
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: etcd-sprint2-mesh-control-plane
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kindnet-7wr26
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kindnet-9sbp5
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kindnet-q5kf4
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-apiserver-sprint2-mesh-control-plane
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-controller-manager-sprint2-mesh-control-plane
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-proxy-7mh42
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-proxy-mlsd6
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-proxy-rwtnn
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Pod: kube-scheduler-sprint2-mesh-control-plane
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+Namespace: local-path-storage
+Pod: local-path-provisioner-6bc4bddd6b-jf5bm
+A group of commands used to retrieve information about proxy configuration from the Envoy config dump
+
+Usage:
+  istioctl proxy-config [command]
+
+Aliases:
+  proxy-config, pc
+
+Examples:
+  # Retrieve information about proxy configuration from an Envoy instance.
+  istioctl proxy-config <clusters|listeners|routes|endpoints|bootstrap|log|secret> <pod-name[.namespace]>
+
+Available Commands:
+  all            Retrieves all configuration for the Envoy in the specified pod
+  bootstrap      Retrieves bootstrap configuration for the Envoy in the specified pod
+  cluster        Retrieves cluster configuration for the Envoy in the specified pod
+  ecds           Retrieves typed extension configuration for the Envoy in the specified pod
+  endpoint       Retrieves endpoint configuration for the Envoy in the specified pod
+  listener       Retrieves listener configuration for the Envoy in the specified pod
+  log            Retrieves logging levels of the Envoy in the specified pod
+  rootca-compare Compare ROOTCA values for the two given pods
+  route          Retrieves route configuration for the Envoy in the specified pod
+  secret         Retrieves secret configuration for the Envoy in the specified pod
+
+Flags:
+  -h, --help                   help for proxy-config
+  -o, --output string          Output format: one of json|yaml|short (default "short")
+      --proxy-admin-port int   Envoy proxy admin port (default 15000)
+
+Global Flags:
+      --context string          Kubernetes configuration context
+  -i, --istioNamespace string   Istio system namespace (default "istio-system")
+  -c, --kubeconfig string       Kubernetes configuration file
+  -n, --namespace string        Kubernetes namespace
+      --vklog Level             number for the log level verbosity. Like -v flag. ex: --vklog=9
+
+Use "istioctl proxy-config [command] --help" for more information about a command.
+[CHECK] DestinationRules configuration...
+apiVersion: v1
+items: []
+kind: List
+metadata:
+  resourceVersion: ""

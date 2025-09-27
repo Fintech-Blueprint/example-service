@@ -1,0 +1,39 @@
+---
+adminPassword: admin  # Note: In production this should come from Vault
+
+persistence:
+    enabled: false
+    size: 1Gi
+
+resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      folder: /tmp/dashboards
+      searchNamespace: ALL
+
+dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+
+dashboards:
+    default:
+      service-b:
+        file: dashboards/service-b.json

@@ -1,0 +1,15 @@
+{
+  "service": "service-a",
+  "target_state": "compliance_ready",
+  "evidence_refs": [
+    {
+      "path": "/workspaces/example-service/audit/services/service-a/evidence/20250925/metrics/baseline.json",
+      "type": "metrics",
+      "hash": "230a7fa29997f1a55a5653051f2eff32b0f84a3b629bebc54ac4f777b505d565"
+    }
+  ],
+  "dependencies": {
+    "required": [],
+    "optional": []
+  }
+}

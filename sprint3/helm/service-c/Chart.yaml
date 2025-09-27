@@ -1,0 +1,49 @@
+---
+apiVersion: v2
+name: service-c
+description: Service C Helm Chart (Sprint 3)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+# Dependencies
+dependencies:
+    - name: istio-injection
+      version: "1.20.x"
+      repository: "https://istio.io/charts"
+      condition: istio.enabled
+
+# Default values
+values:
+    istio:
+      enabled: true
+    
+    service:
+      type: ClusterIP
+      port: 8080
+    
+    deployment:
+      replicas: 2
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 256Mi
+    
+    mesh:
+      mtls:
+        mode: STRICT
+      rbac:
+        enabled: true
+    
+    monitoring:
+      enabled: true
+      prometheus:
+        scrape: true
+      grafana:
+        dashboard: true
+
+---
+# Templates will be added during Sprint 3 implementation

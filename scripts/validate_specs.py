@@ -19,6 +19,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+
 @dataclass
 class ResourceValidation:
     cpu: Optional[float] = None
@@ -45,7 +46,6 @@ class ResourceValidation:
         if self.story_points is None or not 1 <= self.story_points <= 20:
             errors.append(f"Story points must be between 1 and 20, got {self.story_points}")
         return errors
-    
 
 
 @dataclass
@@ -59,6 +59,7 @@ class ScenarioValidation:
     resource_errors: Optional[List[str]] = None
     line_number: Optional[int] = None
 
+
 @dataclass
 class FeatureValidation:
     file_path: str
@@ -67,13 +68,14 @@ class FeatureValidation:
     is_valid: bool
     sha: str
 
+
 class SpecValidator:
     def __init__(self, features_dir: str = "features"):
         self.features_dir = Path(features_dir)
         self.coverage_report_path = None  # Will be set per run
         self.mode = os.environ.get("VALIDATION_MODE", "compliance").lower()
         logging.info(f"Initializing SpecValidator in {self.mode} mode")
-        
+
     def validate_all(self) -> bool:
         """
         Validates all feature files in the features directory.
@@ -82,24 +84,24 @@ class SpecValidator:
         logging.info(f"Starting validation of all feature files in {self.features_dir}")
         all_valid = True
         feature_validations = []
-        
+
         # Get all .feature files
         feature_files = list(self.features_dir.glob("*.feature"))
         if not feature_files:
             logging.error(f"No feature files found in {self.features_dir}")
             return False
-            
+
         logging.info(f"Found {len(feature_files)} feature files to validate")
-            
+
         # Calculate combined SHA
         combined_sha = self._calculate_combined_sha(feature_files)
         logging.info(f"Generated combined SHA: {combined_sha}")
-        
+
         reports_dir = Path("reports")
         feature_sha_dir = reports_dir / combined_sha
         feature_sha_dir.mkdir(parents=True, exist_ok=True)
         logging.info(f"Created reports directory: {feature_sha_dir}")
-        
+
         self.coverage_report_path = feature_sha_dir / "spec-coverage.json"
 
         for feature_file in feature_files:
@@ -116,29 +118,30 @@ class SpecValidator:
             marker = feature_sha_dir / "spec-validation-failed"
             logging.warning(f"Validation failed in compliance mode. Creating marker: {marker}")
             with open(marker, "w") as f:
-                f.write(f"Validation failed at {datetime.datetime.now(UTC).isoformat()}. See spec-coverage.json for details.\n")
+                f.write(
+                    f"Validation failed at {datetime.datetime.now(UTC).isoformat()}. See spec-coverage.json for details.\n")
 
         return all_valid
-        
+
     def _calculate_combined_sha(self, feature_files: List[Path]) -> str:
         """
         Calculate combined SHA of all feature files.
         Files are processed in sorted order for deterministic output.
         """
         sha = hashlib.sha256()
-        
+
         for file in sorted(feature_files):
             content = file.read_bytes()
             sha.update(content)
-            
+
         return sha.hexdigest()[:8]
-        
+
     def _validate_feature(self, feature_file: Path) -> FeatureValidation:
         """Validates a single feature file"""
         scenarios = []
         feature_name = ""
         is_valid = True
-        
+
         with open(feature_file) as f:
             lines = f.readlines()
 
@@ -226,7 +229,7 @@ class SpecValidator:
             is_valid=is_valid,
             sha=hashlib.sha256(feature_file.read_bytes()).hexdigest()[:8]
         )
-        
+
     def _generate_coverage_report(self, validations: List[FeatureValidation], combined_sha: str):
         """Generates the coverage report JSON file"""
         report = {
@@ -234,7 +237,7 @@ class SpecValidator:
             "combined_sha": combined_sha,
             "features": []
         }
-        
+
         for validation in validations:
             feature_report = {
                 "file": validation.file_path,
@@ -243,20 +246,21 @@ class SpecValidator:
                 "is_valid": validation.is_valid,
                 "scenarios": []
             }
-            
+
             for scenario in validation.scenarios:
                 scenario_report = asdict(scenario)
                 feature_report["scenarios"].append(scenario_report)
-                
+
             report["features"].append(feature_report)
-            
+
         # Create reports directory if it doesn't exist
         self.coverage_report_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Write report
         with open(self.coverage_report_path, 'w') as f:
             json.dump(report, f, indent=2)
-            
+
+
 if __name__ == "__main__":
     validator = SpecValidator()
     if not validator.validate_all():

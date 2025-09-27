@@ -1,0 +1,29 @@
+LAST SEEN   TYPE     REASON                    OBJECT                               MESSAGE
+5m35s       Normal   Starting                  node/sprint3-cluster-control-plane   
+5m30s       Normal   Starting                  node/sprint3-cluster-worker2         
+5m26s       Normal   Starting                  node/sprint3-cluster-worker          
+6m7s        Normal   NodeHasNoDiskPressure     node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasNoDiskPressure
+6m7s        Normal   NodeHasSufficientPID      node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasSufficientPID
+6m7s        Normal   NodeAllocatableEnforced   node/sprint3-cluster-control-plane   Updated Node Allocatable limit across pods
+6m7s        Normal   NodeHasSufficientMemory   node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasSufficientMemory
+5m52s       Normal   NodeHasNoDiskPressure     node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasNoDiskPressure
+5m52s       Normal   NodeAllocatableEnforced   node/sprint3-cluster-control-plane   Updated Node Allocatable limit across pods
+5m52s       Normal   NodeHasSufficientPID      node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasSufficientPID
+5m52s       Normal   NodeHasSufficientMemory   node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeHasSufficientMemory
+5m52s       Normal   Starting                  node/sprint3-cluster-control-plane   Starting kubelet.
+5m38s       Normal   RegisteredNode            node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane event: Registered Node sprint3-cluster-control-plane in Controller
+5m36s       Normal   NodeHasSufficientMemory   node/sprint3-cluster-worker2         Node sprint3-cluster-worker2 status is now: NodeHasSufficientMemory
+5m36s       Normal   NodeHasSufficientPID      node/sprint3-cluster-worker2         Node sprint3-cluster-worker2 status is now: NodeHasSufficientPID
+5m36s       Normal   NodeAllocatableEnforced   node/sprint3-cluster-worker2         Updated Node Allocatable limit across pods
+5m36s       Normal   NodeHasNoDiskPressure     node/sprint3-cluster-worker2         Node sprint3-cluster-worker2 status is now: NodeHasNoDiskPressure
+5m36s       Normal   Starting                  node/sprint3-cluster-worker2         Starting kubelet.
+5m35s       Normal   NodeHasSufficientMemory   node/sprint3-cluster-worker          Node sprint3-cluster-worker status is now: NodeHasSufficientMemory
+5m35s       Normal   Starting                  node/sprint3-cluster-worker          Starting kubelet.
+5m35s       Normal   NodeAllocatableEnforced   node/sprint3-cluster-worker          Updated Node Allocatable limit across pods
+5m35s       Normal   NodeHasNoDiskPressure     node/sprint3-cluster-worker          Node sprint3-cluster-worker status is now: NodeHasNoDiskPressure
+5m35s       Normal   NodeHasSufficientPID      node/sprint3-cluster-worker          Node sprint3-cluster-worker status is now: NodeHasSufficientPID
+5m34s       Normal   NodeReady                 node/sprint3-cluster-control-plane   Node sprint3-cluster-control-plane status is now: NodeReady
+5m33s       Normal   RegisteredNode            node/sprint3-cluster-worker          Node sprint3-cluster-worker event: Registered Node sprint3-cluster-worker in Controller
+5m33s       Normal   RegisteredNode            node/sprint3-cluster-worker2         Node sprint3-cluster-worker2 event: Registered Node sprint3-cluster-worker2 in Controller
+5m26s       Normal   NodeReady                 node/sprint3-cluster-worker2         Node sprint3-cluster-worker2 status is now: NodeReady
+5m24s       Normal   NodeReady                 node/sprint3-cluster-worker          Node sprint3-cluster-worker status is now: NodeReady
