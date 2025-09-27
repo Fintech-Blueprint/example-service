@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: service-c-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: service-c.rules
+    rules:
+    - alert: ServiceCHighLatency
+      expr: histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{destination_service=~"service-c.*"}[5m])) by (le)) > 500
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Service-C high latency detected
+        description: Service-C P95 latency is above 500ms for 5 minutes
+
+    - alert: ServiceCHighErrorRate
+      expr: sum(rate(istio_requests_total{destination_service=~"service-c.*",response_code=~"5.*"}[5m])) / sum(rate(istio_requests_total{destination_service=~"service-c.*"}[5m])) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Service-C high error rate detected
+        description: Service-C error rate is above 5% for 5 minutes
+
+    - alert: ServiceCLowAvailability
+      expr: sum(rate(istio_requests_total{destination_service=~"service-c.*",response_code!~"5.*"}[5m])) / sum(rate(istio_requests_total{destination_service=~"service-c.*"}[5m])) < 0.95
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Service-C availability below threshold
+        description: Service-C availability is below 95% for 5 minutes
