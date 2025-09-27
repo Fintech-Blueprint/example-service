@@ -1,6 +1,7 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
-pydantic
+fastapi>=0.103.0
+uvicorn[standard]>=0.23.0
+pytest>=7.4.0
+httpx>=0.24.1
+pydantic>=2.3.0
 requests>=2.31.0
+schedule>=1.2.0
