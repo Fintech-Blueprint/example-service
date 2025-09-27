@@ -28,6 +28,20 @@
 
 ### 3.2 Service-B
 - mTLS: PENDING – awaiting cluster setup
+
+## 4. Container Evidence
+### 4.1 Sprint 5 Container Builds
+- Service-A:
+  - Image: service-a:latest
+  - Hash: sha256:410ff0f2f5d05d925fe2babf42532b6c0f7f1e1bf0bde4d2e107397b54b288
+  - Built: September 27, 2025
+  - Status: ✅ Verified
+
+- Service-B:
+  - Image: service-b:latest
+  - Hash: sha256:9e84980b5d56b0a6d1a9b2797594a50459f57e33708b729c0f58976f7298db
+  - Built: September 27, 2025
+  - Status: ✅ Verified
 - RBAC: PENDING – awaiting cluster setup
 - Validation Script: Referenced by service-a validation scripts
 - Status: Ready for validation
