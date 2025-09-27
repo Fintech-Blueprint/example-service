@@ -1,78 +1,29 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: service-b
-    labels:
-      app: service-b
-      phase: poc
-      compliance-mode: sandbox
+  name: service-b
 spec:
-    replicas: 1
-    selector:
-      matchLabels:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
         app: service-b
-    template:
-      metadata:
-        labels:
-          app: service-b
-          phase: poc
-          compliance-mode: sandbox
-        annotations:
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "8080"
-          prometheus.io/path: "/metrics"
-          mesh.status: "pending"
-      spec:
-        containers:
-          - name: service-b
-            image: python:3.11-slim
-            imagePullPolicy: IfNotPresent
-            command: ["sh", "-c"]
-            args: ["pip install -r requirements.txt && python -m uvicorn main:app --host 0.0.0.0 --port 8080"]
-            workingDir: /app
-            ports:
-              - containerPort: 8080
-            readinessProbe:
-              httpGet:
-                path: /healthz
-                port: 8080
-              initialDelaySeconds: 5
-              periodSeconds: 10
-            livenessProbe:
-              httpGet:
-                path: /healthz
-                port: 8080
-              initialDelaySeconds: 15
-              periodSeconds: 20
-            env:
-              - name: SERVICE_MODE
-                value: "sandbox"
-              - name: COMPLIANCE_PHASE
-                value: "poc"
-              - name: SERVICE_A_URL
-                value: "http://service-a.service-a-poc.svc.cluster.local:8080"
-            volumeMounts:
-              - name: app-code
-                mountPath: /app
-        volumes:
-          - name: app-code
-            hostPath:
-              path: /workspaces/example-service/services/service-b
-              type: Directory
----
-apiVersion: v1
-kind: Service
-metadata:
-    name: service-b
-    labels:
-      app: service-b
-      phase: poc
-spec:
-    ports:
-      - port: 8080
-        targetPort: 8080
-        protocol: TCP
-        name: http
-    selector:
-      app: service-b
+    spec:
+      containers:
+      - name: service-b
+        image: service-b:latest
+        ports:
+        - containerPort: 8000
+          name: metrics
+        - containerPort: 8001
+          name: http
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
